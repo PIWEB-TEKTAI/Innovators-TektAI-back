@@ -1,17 +1,20 @@
 const express = require('express');
 
 const connectDB = require('./src/configs/db');
+const cors = require('cors')
+const userRouter = require('./src/routes/user');
 
 const dotenv = require('dotenv')
 dotenv.config()
 const app = express();
 const server = require('http').createServer(app)
 
+app.use(cors());
+
 
 app.use(express.json());
-app.use('' , async function (req,res){
-   res.json({message:"la réponse du serveur"})
-} )
+
+app.use('/user' , userRouter);
 
 
 
