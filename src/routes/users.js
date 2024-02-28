@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const User = require('../models/users');
@@ -35,22 +36,21 @@ router.get('/:userId', function(req, res, next) {
 });
 
 // PUT to validate user by ID
-router.put('/validate/:userId', function(req, res, next) {
-    const userId = req.params.userId;
+router.get('/validate/:userId', function(req, res, next) {
+  const userId = req.params.userId;
 
-    User.findByIdAndUpdate(userId, { state: 'validated' }, { new: true })
-        .then(updatedUser => {
-            if (!updatedUser) {
-                return res.status(404).json({ error: "Utilisateur non trouvé" });
-            }
-            res.json(updatedUser); // Renvoie l'utilisateur mis à jour
-        })
-        .catch(err => {
-            console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
-            res.status(500).json({ error: "Erreur Interne du Serveur" });
-        });
+  User.findByIdAndUpdate(userId, { state: 'validated' }, { new: true })
+      .then(updatedUser => {
+          if (!updatedUser) {
+              return res.status(404).json({ error: "Utilisateur non trouvé" });
+          }
+          res.json(updatedUser); // Renvoie l'utilisateur mis à jour
+      })
+      .catch(err => {
+          console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
+          res.status(500).json({ error: "Erreur Interne du Serveur" });
+      });
 });
-
 // PUT to update user information by ID (additional endpoint for editing user info)
 router.put('/update/:userId', function(req, res, next) {
     const userId = req.params.userId;
