@@ -6,11 +6,13 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv')
 const cors = require("cors");
 const cookieSession = require("cookie-session");
+const path = require('path');
 
 dotenv.config()
 const app = express();
 
 const server = require('http').createServer(app)
+
 //routes 
 var authRouter = require('./src/routes/auth.route');
 var userRouter = require('./src/routes/user.route');
@@ -32,14 +34,14 @@ app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
+/*app.use(
   cookieSession({
     name: "bezkoder-session",
     keys: ["COOKIE_SECRET"], // should use as secret environment variable
     httpOnly: true
   })
 );
-
+*/
 
 
 app.use(cookieParser());
@@ -54,7 +56,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
+//image
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 

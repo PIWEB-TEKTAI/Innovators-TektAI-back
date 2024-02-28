@@ -19,9 +19,17 @@ exports.signin = async (req, res) => {
       if (!passwordIsValid) {
         return res.status(401).send({ message: 'Invalid Password!' });
       }
-  
+      if(!user.isEmailVerified){
+        return res.status(401).send({ message: 'Please verify your email' });
+
+      }
+      if(user.state != "valid"){
+        return res.status(401).send({ message: 'User not approved' });
+
+      }
+
       const token = jwt.sign(
-        { id: user.id , role: user.role,userName:user.FirstName + " " + user.LastName,occupation:user.occupation,email:user.email},
+        { id: user.id , role: user.role,userName:user.FirstName + " " + user.LastName,occupation:user.occupation,email:user.email,imageUrl:user.imageUrl},
         config.secret,
         {
           algorithm: 'HS256',
@@ -46,12 +54,15 @@ exports.signin = async (req, res) => {
       res.status(500).send({ message: 'Internal Server Error' });
     }
   };
-exports.signout = async (req, res) => {
-  try {
-    req.session = null;
-    return res.status(200).send({ message: "You've been signed out!" });
-  } catch (err) {
-    this.next(err);
-  }
-};
+exports.signout = (req, res) => {
+    try {
+      // Clear the token on the client side by setting an expired date
+      res.cookie('token', '', { expires: new Date(0), httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });  
+      res.status(200).send({ message: 'Sign-out successful.' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: 'Internal Server Error' });
+    }
+  };
+  
 
