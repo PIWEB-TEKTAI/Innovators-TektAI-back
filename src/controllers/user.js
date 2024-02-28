@@ -37,7 +37,7 @@ const register = async (req,res) =>{
             const token = await Token.create({ userId: user._id, token: crypto.randomBytes(120).toString('hex') });
 
             const link = `http://localhost:5173/auth/verifyEmail/${token.token}/${token.userId}`;
-            sendEmail(req.body.email , "Please confirm your Email address" , "Hello,<br> Please Click on the link to verify your email.<br><a href="+ link +">Click here to verify</a>")
+            await sendEmail(req.body.email , "Please confirm your Email address" , "Hello,<br> Please Click on the link to verify your email.<br><a href="+ link +">Click here to verify</a>")
             res.status(StatusCodes.CREATED).json({ msg: "Your registration is successful, Please check your email to verify your email" })
         }else{
             res.status(500).json( {msg :"Error Submitting data"})
@@ -61,7 +61,23 @@ const emailVerification = async(req,res)=>{
 }
 
 
+const resendEmailVerification = async(req,res)=>{
+    const { email } = req.body
+    const user = await User.findOne({email: email })
+    if(!user){
+        return res.status(401).send({msg:'We were unable to find a user for this verification. Please SignUp!'});
+    } 
+    if(user.isEmailVerified == true){
+        return res.status(401).send({msg:'The email address is already verified!'});
+    }
+    const token = await Token.create({ userId: user._id, token: crypto.randomBytes(64).toString('hex') })
 
+    const link = `http://localhost:5173/auth/verifyEmail/${token.token}/${token.userId}`;
+
+    await sendEmail(req.body.email , "Please confirm your Email address" , "Hello,<br> Please Click on the link to verify your email.<br><a href="+ link +">Click here to verify</a>")
+
+    res.status(StatusCodes.OK).json({msg:'we have sent the verification link successfully'});
+}
 
 
 
@@ -77,7 +93,8 @@ const emailVerification = async(req,res)=>{
 
 module.exports = {
    register,
-   emailVerification
+   emailVerification,
+   resendEmailVerification
 }
 
 
