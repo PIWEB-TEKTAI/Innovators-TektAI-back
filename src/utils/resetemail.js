@@ -1,39 +1,32 @@
-const  nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
-
-
-
-const sendEmail = async (email, subject , html) => {
-
-let transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-          user: 'laroussilina056@gmail.com',
-          pass: 'vumt qaak obog xlfr'
-      }
-}); 
-
-
-const mailOptions = {
-    from: 'laroussilina056@gmail.com',
-    to: email,
-    subject: subject,
-    html: html,
-  };
-  
-  // Send email
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.error('Error occurred:', error);
-    } else {
-      console.log('Email sent:', info.response);
+const resetemail = async (toEmail, subject, htmlContent) => {
+  // Create a Nodemailer transporter
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'gestionstockapii@gmail.com',
+      pass: 'dhxo jaxk ewnv xsyr'
     }
-});}
+  });
 
+  // Define mail options
+  let mailOptions = {
+    from: 'gestionstockapii@gmail.com',
+    to: toEmail,
+    subject: subject,
+    html: htmlContent
+  };
 
+  try {
+    // Send email
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
+    return { status: 'success' };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return { status: 'error', error: error.message };
+  }
+};
 
-
-module.exports = sendEmail;
+module.exports = resetemail;

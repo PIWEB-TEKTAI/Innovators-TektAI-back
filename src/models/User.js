@@ -84,7 +84,12 @@ const userSchema = new mongoose.Schema({
         enum: ["super admin", "admin" ,"challenger","company"],
         required: [true, 'please provide a user role'],
     },
-},{ timestamps: true });
+
+    previousPasswords: [{ type: String }]
+  },
+
+
+{ timestamps: true });
 
 const User = mongoose.model('User', userSchema);
 

@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
 const User = require('./src/models/User'); // Import the User model
+const resetemail = require('./src/utils/resetemail');
 
 dotenv.config();
 
@@ -35,13 +36,6 @@ app.post('/api/forgotPassword', (req, res) => {
           return res.send({Status: "User not existed"})
       } 
       const token = jwt.sign({id: user._id}, "jwt_secret_key", {expiresIn: "1d"})
-      var transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: 'gestionstockapii@gmail.com',
-            pass: 'dhxo jaxk ewnv xsyr'
-          }
-        });
         const resetPasswordLink = `http://localhost:5173/auth/resetPassword/${user._id}/${token}`;
         const emailHtml = `
         <!DOCTYPE html>
@@ -132,8 +126,8 @@ app.post('/api/forgotPassword', (req, res) => {
           </style>
         </head>
         
-        <body style="background-color: #37474f; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
-          <table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #37474f;">
+        <body style="background-color: #ffffff; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+          <table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
             <tbody>
               <tr>
                 <td>
@@ -141,7 +135,7 @@ app.post('/api/forgotPassword', (req, res) => {
                     <tbody>
                       <tr>
                         <td>
-                          <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 645px; margin: 0 auto;" width="645">
+                          <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 550px; margin: 0 auto;" width="550">
                             <tbody>
                               <tr>
                                 <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
@@ -166,7 +160,7 @@ app.post('/api/forgotPassword', (req, res) => {
                     <tbody>
                       <tr>
                         <td>
-                          <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #cbb9ff; color: #000000; width: 645px; margin: 0 auto;" width="645">
+                          <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #cbb9ff; color: #000000; width: 550px; margin: 0 auto;" width="550">
                             <tbody>
                               <tr>
                                 <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
@@ -174,7 +168,7 @@ app.post('/api/forgotPassword', (req, res) => {
                                     <tr>
                                       <td class="pad" style="width:100%;">
                                         <div class="alignment" align="center" style="line-height:10px">
-                                          <div style="max-width: 645px;"><a href="www.example.com" target="_blank" style="outline:none" tabindex="-1"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/4056/3275432.png" style="display: block; height: auto; border: 0; width: 100%;" width="645" alt="reset password" title="reset password"></a></div>
+                                          <div style="max-width: 550px;"><a href="www.example.com" target="_blank" style="outline:none" tabindex="-1"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/4056/3275432.png" style="display: block; height: auto; border: 0; width: 100%;" width="550" alt="reset password" title="reset password"></a></div>
                                         </div>
                                       </td>
                                     </tr>
@@ -220,7 +214,7 @@ app.post('/api/forgotPassword', (req, res) => {
                     <tbody>
                       <tr>
                         <td>
-                          <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 645px; margin: 0 auto;" width="645">
+                          <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 550px; margin: 0 auto;" width="550">
                             <tbody>
                               <tr>
                                 <td class="column column-1" width="33.333333333333336%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
@@ -332,24 +326,19 @@ app.post('/api/forgotPassword', (req, res) => {
         </body>
         
              </html> `;
-        var mailOptions = {
-          from: 'gestionstockapii@gmail.com',
-          to: user.email ,
-          subject: 'Reset Password Link',
-          text: resetPasswordLink ,
-          html: emailHtml // Utiliser le contenu HTML existant
-
-        };
+    
         
-        transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log(error);
-          } else {
-            return res.send({Status: "Success"})
-          }
-        });
-  })
-})
+        resetemail(user.email, 'Reset Password Link', emailHtml)
+        .then(() => res.send({ Status: "Success" }))
+        .catch(error => res.status(500).json({ Status: "Error sending email", error }));
+    })
+    .catch(error => {
+      console.error('Error finding user:', error);
+      res.status(500).json({ Status: "Internal Server Error" });
+    });
+});
+
+
 
 app.post('/api/resetPassword/:id/:token', async (req, res) => {
   const { id, token } = req.params;
@@ -366,16 +355,21 @@ app.post('/api/resetPassword/:id/:token', async (req, res) => {
     }
 
     // Check if the new password matches any of the user's previous passwords
-    const passwordMatched = await bcrypt.compare(password, user.password);
-    if (passwordMatched) {
-      return res.status(400).json({ Status: "Cannot reuse previous password" });
+    const passwordMatched = await Promise.all(user.previousPasswords.map(async (prevPassword) => {
+      return await bcrypt.compare(password, prevPassword);
+    }));
+
+    if (passwordMatched.some(match => match)) {
+      return res.status(400).json({ Status: "Cannot reuse previous password, Please try another one" });
     }
+
 
     // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Update the user's password
-    await User.findByIdAndUpdate(id, { password: hashedPassword });
+    user.previousPasswords.push(user.password);
+    user.password = hashedPassword;
+    await user.save();
 
     return res.json({ Status: "Success" });
   } catch (error) {
