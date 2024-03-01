@@ -1,21 +1,20 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt')
+
 
 const userSchema = new mongoose.Schema({
   FirstName: {
     type: String,
     required: true,
-   
   },
   LastName: {
     type: String,
     required: true,
-   
   },
   email: {
     type: String,
     required: true,
-    unique:true
-   
+    unique: true
   },
   password: {
     type: String,
@@ -32,11 +31,9 @@ const userSchema = new mongoose.Schema({
   },
   birthDate:{
     type:Date,
-    required:false
   },
   occupation:{
     type:String,
-    required:true
   },
   Description:{
     type:String
@@ -50,14 +47,12 @@ const userSchema = new mongoose.Schema({
   company:{
       name: {
         type: String,
-       
       },
       address: {
         type: String,
       },
       email: {
-        type: String,
-   
+        type: String,        
       },
       description:{
         type:String,
@@ -66,12 +61,12 @@ const userSchema = new mongoose.Schema({
         type: String,
       },
       professionnalFields:{
-        type:Array,
+        type:String,
       }
     },
 
    isEmailVerified:{
-        type:Boolean
+        type:Boolean,
    },
 
    state:{
@@ -86,6 +81,13 @@ const userSchema = new mongoose.Schema({
     },
 },{ timestamps: true });
 
+
+
+userSchema.pre('save', async function (){
+  const salt =await bcrypt.genSalt(10)
+  this.password= await bcrypt.hash(this.password, salt)
+})
+
 const User = mongoose.model('User', userSchema);
 
-module.exports = User
+module.exports = User;

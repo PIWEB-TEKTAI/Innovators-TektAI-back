@@ -15,7 +15,7 @@ const server = require('http').createServer(app)
 
 //routes 
 var authRouter = require('./src/routes/auth.route');
-var userRouter = require('./src/routes/user.route');
+const userRouter = require('./src/routes/user');
 
 var corsOptions = {
   origin: 'http://localhost:5173',
@@ -30,6 +30,7 @@ app.use((req, res, next) => {
 });
 // parse requests of content-type - application/json
 app.use(express.json());
+
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
