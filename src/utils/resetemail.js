@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
+const hbs = require('nodemailer-express-handlebars');
+const path = require('path');
 
-const resetemail = async (toEmail, subject, htmlContent) => {
+const resetemail = async (toEmail, subject, template, resetPasswordLink, FirstName, LastName) => {
   // Create a Nodemailer transporter
   let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -10,14 +12,33 @@ const resetemail = async (toEmail, subject, htmlContent) => {
     }
   });
 
+  const handlebarOptions = {
+    viewEngine: {
+        extName: '.hbs',
+        partialsDir: path.resolve(__dirname, '../EmailTemplate/partials'),
+        defaultLayout: false,
+    },
+    viewPath: path.resolve(__dirname, '../EmailTemplate/'),
+    extName: '.hbs',
+};
+
+// Use Handlebars for email templates
+transporter.use('compile', hbs(handlebarOptions));
+
+
+
   // Define mail options
   let mailOptions = {
     from: 'gestionstockapii@gmail.com',
     to: toEmail,
     subject: subject,
-    html: htmlContent
-  };
-
+    template: template,
+    context: {
+      resetPasswordLink: resetPasswordLink,
+        FirstName: FirstName,
+        LastName: LastName,
+    }
+};
   try {
     // Send email
     await transporter.sendMail(mailOptions);
