@@ -35,9 +35,10 @@ const register = async (req,res) =>{
         const createdUser = user.save();
         if(createdUser){
             const token = await Token.create({ userId: user._id, token: crypto.randomBytes(120).toString('hex') });
-
+            
             const link = `http://localhost:5173/auth/verifyEmail/${token.token}/${token.userId}`;
-            await sendEmail(req.body.email , "Please confirm your Email address" , "Hello,<br> Please Click on the link to verify your email.<br><a href="+ link +">Click here to verify</a>")
+            const template = 'emailVerification'
+            await sendEmail(req.body.email , "Please confirm your Email address",template , link ,(await createdUser).FirstName , (await createdUser).LastName )
             res.status(StatusCodes.CREATED).json({ msg: "Your registration is successful, Please check your email to verify your email" })
         }else{
             res.status(500).json( {msg :"Error Submitting data"})
@@ -73,8 +74,8 @@ const resendEmailVerification = async(req,res)=>{
     const token = await Token.create({ userId: user._id, token: crypto.randomBytes(64).toString('hex') })
 
     const link = `http://localhost:5173/auth/verifyEmail/${token.token}/${token.userId}`;
-
-    await sendEmail(req.body.email , "Please confirm your Email address" , "Hello,<br> Please Click on the link to verify your email.<br><a href="+ link +">Click here to verify</a>")
+    const template = 'emailVerification'
+    await sendEmail(req.body.email , "Please confirm your Email address",template , link ,user.FirstName , user.LastName )
 
     res.status(StatusCodes.OK).json({msg:'we have sent the verification link successfully'});
 }
