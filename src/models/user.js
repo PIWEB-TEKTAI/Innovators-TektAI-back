@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
   Education:{
     type:String
   },
-  Skills:{
+  skills:{
      type:Array
   },
   company:{

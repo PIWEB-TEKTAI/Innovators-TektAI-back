@@ -25,9 +25,19 @@ bcrypt.genSalt(saltRounds, (err, salt) => {
     try {
       // Insert the user with the hashed password into the database
       await User.create({
-        email: 'rouaidabenrabeh2000@gmail.com', // Adjust based on your user schema
+        email: 'rouaidabenrabeh@gmail.com', // Adjust based on your user schema
         password: hashedPassword,
-        role: 'challenger',
+        role: 'company',
+        FirstName:'wissem',
+        LastName:'ben foulen',
+        occupation:'project Manager',
+        company:{
+          name:'smart2s',
+          email:'smart2s@gmail.com',
+          
+        }
+
+
       });
 
       console.log('User with hashed password inserted successfully');
