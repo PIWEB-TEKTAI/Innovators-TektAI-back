@@ -1,6 +1,6 @@
 const express = require("express")
-const router = express.Router();
 const user = require('../controllers/user')
+const router = express.Router();
 
 const controller = require("../controllers/user.controller");
 const { verifyToken ,verifyAndDecodeToken, isAdmin, isSuperAdmin, isChallenger, isCompany } = require("../middlewares/authjwt");
@@ -16,7 +16,6 @@ router.put('/updateProfile',authMiddleware,controller.updatedUser);
 router.post('/checkEmailUnique',authMiddleware,controller.checkEmailUnique)
 router.put('/updateCompany',authMiddleware,controller.updateCompany)
 
-module.exports = router;
-
-
+router.post('/forgotPassword', user.forgotPassword);
+router.post('/resetPassword/:id/:token', user.resetPassword);
 module.exports = router

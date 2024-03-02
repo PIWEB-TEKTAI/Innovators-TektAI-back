@@ -23,7 +23,7 @@ exports.signin = async (req, res) => {
         return res.status(401).send({ message: 'Please verify your email' });
 
       }
-      if(user.state != "valid"){
+      if(user.state != "validated"){
         return res.status(401).send({ message: 'User not approved' });
 
       }

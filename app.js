@@ -1,5 +1,4 @@
 const express = require('express');
-
 const connectDB = require('./src/configs/db');
 const cookieParser = require('cookie-parser');
 
@@ -30,6 +29,11 @@ app.use((req, res, next) => {
 });
 // parse requests of content-type - application/json
 app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173' , 
+  credentials: true
+}));
+app.use('/api', userRouter);
 
 
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -62,6 +66,11 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 
+
+// Default route
+app.use('', async function (req, res) {
+  res.json({ message: "la réponse du serveur" });
+});
 
 const port = process.env.PORT || 3000;
 
