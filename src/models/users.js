@@ -71,16 +71,16 @@ const userSchema = new mongoose.Schema({
       }
     },
 
-   isEmailVerified:{
+  isEmailVerified:{
         type:Boolean
    },
 
-   state:{
+  state:{
         type:String,
         enum: ['validated','not validated'],
         default:"not validated",
     },
-    role: {
+  role: {
         type: String,
         enum: ["super admin", "admin" ,"challenger","company"],
         required: [true, 'please provide a user role'],
