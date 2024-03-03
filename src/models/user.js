@@ -19,10 +19,13 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: function () {
+      return !this.isExternalUser;
+    },  
   },
   imageUrl: { 
     type: String,
+    default:"http://localhost:3000/images/user_3177440.png"
   },
   phone: {
     type: String,
@@ -36,7 +39,9 @@ const userSchema = new mongoose.Schema({
   },
   occupation:{
     type:String,
-    required:true
+    required: function () {
+      return !this.isExternalUser;
+    },  
   },
   Description:{
     type:String
@@ -44,8 +49,11 @@ const userSchema = new mongoose.Schema({
   Education:{
     type:String
   },
-  Skills:{
-     type:String
+  skills:{
+     type:Array
+  },
+  isExternalUser:{
+    type:Boolean
   },
   company:{
       name: {
@@ -73,6 +81,7 @@ const userSchema = new mongoose.Schema({
    isEmailVerified:{
         type:Boolean
    },
+   contry:String,
 
    state:{
         type:String,

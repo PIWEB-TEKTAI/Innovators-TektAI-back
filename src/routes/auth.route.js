@@ -11,4 +11,6 @@ router.get('/securedResource', authMiddleware, (req, res) => {
   });
   
 router.post("/signout", controller.signout);
+router.post("/setToken", controller.signInWithGoogle);
+
 module.exports = router;

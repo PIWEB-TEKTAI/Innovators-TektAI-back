@@ -3,7 +3,6 @@ const User = require("../models/user");
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-const user = require("../models/user");
 
 
 exports.signin = async (req, res) => {
@@ -26,6 +25,9 @@ exports.signin = async (req, res) => {
       if(user.state != "validated"){
         return res.status(401).send({ message: 'User not approved' });
 
+      }
+      if(user.isExternalUser){
+        return res.status(401).send({ message: "You should sign in using you're google account" });
       }
 
       const token = jwt.sign(
@@ -54,6 +56,81 @@ exports.signin = async (req, res) => {
       res.status(500).send({ message: 'Internal Server Error' });
     }
   };
+  exports.signInWithGoogle = async (req, res) => {
+    try {
+      const data = req.body.user.data;
+      const user = await User.findOne({ email: data.email });
+  
+      if (!user) {
+        const userData = {
+          FirstName: data.given_name,
+          LastName: data.family_name,
+          email: data.email,
+          role: "challenger",
+          isEmailVerified: data.verified_email,
+          isExternalUser: true,
+          state: "validated",
+          password: "",
+        };
+  
+        const newUser = new User({
+          ...userData,
+        });
+  
+        // Use await with save to ensure user is saved before continuing
+        const createdUser = await newUser.save();
+  
+        if (createdUser) {
+          const token = jwt.sign(
+            {
+              id: createdUser.id,
+              role: createdUser.role,
+              userName: createdUser.FirstName + " " + createdUser.LastName,
+              occupation: createdUser.occupation,
+              email: createdUser.email,
+              imageUrl: createdUser.imageUrl,
+            },
+            config.secret,
+            {
+              algorithm: 'HS256',
+              allowInsecureKeySizes: true,
+              expiresIn: 86400, // 24 hours
+            }
+          );
+          console.log(token);
+          res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+          
+          return res.status(201).json({ token, message: 'Google sign-in successful' });
+        }
+      } else if (user && user.isExternalUser == false) {
+        return res.status(401).json({ message: "An account with the email address you're trying to use already exists. If you've previously signed up using a password, you can sign in directly. If you forgot your password, you can recover it. Alternatively, if you've signed up with Google using this email, please use the Google sign-in option." });
+      } else if (user && user.isExternalUser == true) {
+        const token = jwt.sign(
+          {
+            id: user.id,
+            role: user.role,
+            userName: user.FirstName + " " + user.LastName,
+            occupation: user.occupation,
+            email: user.email,
+            imageUrl: user.imageUrl,
+          },
+          config.secret,
+          {
+            algorithm: 'HS256',
+            allowInsecureKeySizes: true,
+            expiresIn: 86400, // 24 hours
+          }
+        );
+        res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+        
+        return res.status(200).json({ token, message: 'Google sign-in successful' });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+  };
+  
 exports.signout = (req, res) => {
     try {
       // Clear the token on the client side by setting an expired date
