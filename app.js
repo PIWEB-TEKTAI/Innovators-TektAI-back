@@ -6,7 +6,7 @@ const dotenv = require('dotenv')
 const cors = require("cors");
 const cookieSession = require("cookie-session");
 const path = require('path');
-
+const axios = require('axios')
 dotenv.config()
 const app = express();
 
@@ -65,6 +65,31 @@ app.use(function(err, req, res, next) {
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
+
+
+
+//recaptcha 
+app.post("/verify-captcha", async (req, res) => {
+  const { token } = req.body;
+  console.log(token)
+
+  try {
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=6LenUIgpAAAAAAZQ5h6MOZArs3FZZDBBbDaswTDH&response=${token}`
+    );
+
+    if (response.data.success) {
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ success: false, message: 'CAPTCHA verification failed' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error verifying reCAPTCHA");
+   }
+});
+
+
 
 
 // Default route
