@@ -30,6 +30,20 @@ router.get('/Company', async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
+router.get('/admin', async (req, res) => {
+  try {
+    const companies = await User.find({ role: 'admin' });
+
+    if (!companies || companies.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
+    }
+
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
 router.get('/:email', async (req, res) => {
     try {
         const email=req.params.email;
@@ -105,18 +119,27 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
         }
       });
 
-
-
-
-
-
-
-
-
-
-
-
-
+      router.post('/AddAdminBySA',function(req,res)
+      {
+          new User({
+              FirstName:req.body.FirstName,
+              LastName:req.body.LastName,
+              email:req.body.email,
+              password:req.body.password,
+              imageUrl:req.body.imageUrl,
+              birthDate:req.body.birthDate,
+              phone:req.body.phone,
+              address:req.body.address,
+              occupation:req.body.occupation,
+              Description:req.body.Description,
+              Education:req.body.Education,
+              Skills:req.body.Skills,
+              isEmailVerified:true,
+              state:'validated',
+              role:'admin',
+             
+          }).save(res.send("Admin added"))
+      });
 
 //Ajouter un Challanger Account
 router.post('/AddChallengerByAdmin',function(req,res)
@@ -185,25 +208,7 @@ router.post('/AddCompanyByAdmin', function (req, res) {
     });
 });
 
-router.post('/AddAdminBySuperAdmin',function(req,res)
-{
-    new User({
-        FirstName:req.body.FirstName,
-        LastName:req.body.LastName,
-        email:req.body.email,
-        password:req.body.password,
-        imageUrl:req.body.imageUrl,
-        phone:req.body.phone,
-        address:req.body.address,
-        occupation:req.body.occupation,
-        Description:req.body.Description,
-        Education:req.body.Education,
-        Skills:req.body.Skills,
-        isEmailVerified:true,
-        state:'validated',
-        role:'admin'
-    }).save(res.send("challenger added"))
-})
+
 router.post('/AddChallengerNormal',function(req,res)
 {
     new User({
@@ -239,24 +244,10 @@ router.post('/checkUniqueEmail', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-  router.get('/:userId', function(req, res, next) {
-    const userId = req.params.userId;
 
-    User.findById(userId)
-        .then(user => {
-            if (!user) {
-                return res.status(404).json({ error: "Utilisateur non trouvé" });
-            }
-            res.json(user);
-        })
-        .catch(err => {
-            console.error("Erreur lors de la récupération de l'utilisateur:", err);
-            res.status(500).json({ error: "Erreur Interne du Serveur" });
-        });
-});
-// PUT to validate user by ID
-router.get('/validate/:userId', function(req, res, next) {
-  const userId = req.params.userId;
+// PUT to validate user byemail 
+router.get('/validate/:email', function(req, res, next) {
+  const userId = req.params.email;
 
   User.findByIdAndUpdate(userId, { state: 'validated' }, { new: true })
       .then(updatedUser => {
@@ -270,22 +261,22 @@ router.get('/validate/:userId', function(req, res, next) {
           res.status(500).json({ error: "Erreur Interne du Serveur" });
       });
 });
-// PUT to update user information by ID (additional endpoint for editing user info)
-router.put('/update/:userId', function(req, res, next) {
-    const userId = req.params.userId;
-    const updatedData = req.body; // Assuming the updated user data is sent in the request body
+// PUT to update user information by email  (additional endpoint for editing user info)
+router.put('/update/:email', function(req, res, next) {
+  const email = req.params.email;
+  const updatedData = req.body;
 
-    User.findByIdAndUpdate(userId, updatedData, { new: true })
-        .then(updatedUser => {
-            if (!updatedUser) {
-                return res.status(404).json({ error: "Utilisateur non trouvé" });
-            }
-            res.json(updatedUser); // Renvoie l'utilisateur mis à jour
-        })
-        .catch(err => {
-            console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
-            res.status(500).json({ error: "Erreur Interne du Serveur" });
-        });
+  User.findOneAndUpdate({ email: email }, updatedData, { new: true })
+      .then(updatedUser => {
+          if (!updatedUser) {
+              return res.status(404).json({ error: "Utilisateur non trouvé" });
+          }
+          res.json(updatedUser);
+      })
+      .catch(err => {
+          console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
+          res.status(500).json({ error: "Erreur Interne du Serveur" });
+      });
 });
 
 module.exports = router;
