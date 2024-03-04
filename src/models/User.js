@@ -69,6 +69,9 @@ const userSchema = new mongoose.Schema({
       type: Array,
     }
   },
+  permissions: {
+    type: Array,
+  },
 
   isEmailVerified: {
     type: Boolean

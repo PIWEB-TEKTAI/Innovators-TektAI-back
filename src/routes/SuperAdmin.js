@@ -119,28 +119,35 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
         }
       });
 
-      router.post('/AddAdminBySA',function(req,res)
-      {
-          new User({
-              FirstName:req.body.FirstName,
-              LastName:req.body.LastName,
-              email:req.body.email,
-              password:req.body.password,
-              imageUrl:req.body.imageUrl,
-              birthDate:req.body.birthDate,
-              phone:req.body.phone,
-              address:req.body.address,
-              occupation:req.body.occupation,
-              Description:req.body.Description,
-              Education:req.body.Education,
-              Skills:req.body.Skills,
-              isEmailVerified:true,
-              state:'validated',
-              role:'admin',
-             
-          }).save(res.send("Admin added"))
-      });
+    router.post('/AddAdminBySA', function (req, res) {
+  const newAdmin = new User({
+    FirstName: req.body.FirstName,
+    LastName: req.body.LastName,
+    email: req.body.email,
+    password: req.body.password,
+    imageUrl: req.body.imageUrl,
+    birthDate: req.body.birthDate,
+    phone: req.body.phone,
+    address: req.body.address,
+    occupation: req.body.occupation,
+    Description: req.body.Description,
+    Education: req.body.Education,
+    Skills: req.body.Skills,
+    isEmailVerified: true,
+    state: 'validated',
+    role: 'admin',
+    permissions: req.body.permissions, 
+  });
 
+  newAdmin.save()
+    .then(() => {
+      res.send("Admin added");
+    })
+    .catch((error) => {
+      console.error("Error adding admin:", error);
+      res.status(500).send("Internal Server Error");
+    });
+});
 //Ajouter un Challanger Account
 router.post('/AddChallengerByAdmin',function(req,res)
 {
