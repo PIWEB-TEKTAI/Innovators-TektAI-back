@@ -75,7 +75,7 @@ app.post("/verify-captcha", async (req, res) => {
 
   try {
     const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify?secret=6LenUIgpAAAAAAZQ5h6MOZArs3FZZDBBbDaswTDH&response=${token}`
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`
     );
 
     if (response.data.success) {
