@@ -1,7 +1,5 @@
-// middleware/authMiddleware.js
-
 const jwt = require('jsonwebtoken');
-const config = require('../configs/auth.config'); // Include your configuration file
+const config = require('../configs/auth.config');
 
 const authMiddleware = (req, res, next) => {
   const token = req.cookies.token;
@@ -12,6 +10,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, config.secret);
+    req.userId = decoded.id; // Set userId based on the decoded token
     req.user = decoded; // Attach user information to the request
     next();
   } catch (error) {

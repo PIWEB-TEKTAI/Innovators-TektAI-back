@@ -11,4 +11,6 @@ router.get('/securedResource', authMiddleware, (req, res) => {
   });
   
 router.post("/signout", controller.signout);
+router.put("/deactivate", authMiddleware, controller.deactivateAccount);
+
 module.exports = router;

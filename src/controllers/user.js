@@ -5,6 +5,8 @@ const sendEmail = require('../utils/sendEmail')
 const Token = require('../models/token')
 const crypto = require('crypto')
 const resetemail = require('../utils/resetemail');
+const contactemail = require('../utils/contactemail');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -140,12 +142,36 @@ const resetPassword = async (req, res) => {
     return res.status(500).json({ Status: "Internal Server Error" });
   }
 };
+
+const sendContactEmail = async (req, res) => {
+  const { fromEmail, message } = req.body;
+  const subject = 'Contact Form Submission';
+
+  try {
+      const result = await contactemail(fromEmail, subject, message); // Use contactemail function
+      if (result.status === 'success') {
+          res.status(200).json({ message: 'Email sent successfully!' });
+      } else {
+          res.status(500).json({ error: 'Failed to send email. Please try again later.' });
+      }
+  } catch (error) {
+      console.error('Error sending email:', error);
+      res.status(500).json({ error: 'Failed to send email. Please try again later.' });
+  }
+};
+
+
+
+
+
+
 module.exports = {
    register,
    emailVerification,
    resendEmailVerification,
    forgotPassword,
-   resetPassword
+   resetPassword,
+   sendContactEmail
 }
 
 

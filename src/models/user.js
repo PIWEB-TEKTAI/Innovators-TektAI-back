@@ -85,9 +85,14 @@ const userSchema = new mongoose.Schema({
         required: [true, 'please provide a user role'],
     },
 
-    previousPasswords: [{ type: String }]
-  },
+    previousPasswords: [{ type: String }],
 
+
+  isDeactivated: {
+    type: Boolean,
+    default: false 
+  }
+},
 
 { timestamps: true });
 
