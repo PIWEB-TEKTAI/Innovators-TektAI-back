@@ -1,19 +1,23 @@
 const express = require('express');
-
 const connectDB = require('./src/configs/db');
+const admin = require('./src/routes/SuperAdmin');
+const cors = require('cors');
+const dotenv = require('dotenv');
 
-const dotenv = require('dotenv')
-dotenv.config()
+dotenv.config();
+
 const app = express();
-const server = require('http').createServer(app)
+const server = require('http').createServer(app);
 
+// Enable CORS for all routes
+app.use(cors());
 
 app.use(express.json());
-app.use('' , async function (req,res){
-   res.json({message:"la réponse du serveur"})
-} )
+app.use("/Admin", admin);
 
-
+app.use('', async function (req, res) {
+  res.json({ message: "la réponse du serveur" });
+});
 
 const port = process.env.PORT || 3000;
 
