@@ -20,4 +20,5 @@ router.post('/forgotPassword', user.forgotPassword);
 router.post('/resetPassword/:id/:token', user.resetPassword);
 router.post('/contact', user.sendContactEmail);
 
+
 module.exports = router

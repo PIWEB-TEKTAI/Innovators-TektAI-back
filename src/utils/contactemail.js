@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
+const hbs = require('nodemailer-express-handlebars');
+const path = require('path');
 
-const contactemail = async (fromEmail, subject, message) => {
+const contactemail = async (subject  , email , message ) => {
     // Create a Nodemailer transporter
     let transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -9,14 +11,31 @@ const contactemail = async (fromEmail, subject, message) => {
             pass: 'dhxo jaxk ewnv xsyr'
         }
     });
+    const handlebarOptions = {
+        viewEngine: {
+            extName: '.hbs',
+            partialsDir: path.resolve(__dirname, '../EmailTemplate/partials'),
+            defaultLayout: false,
+        },
+        viewPath: path.resolve(__dirname, '../EmailTemplate/'),
+        extName: '.hbs',
+    };
+    
+
+    transporter.use('compile', hbs(handlebarOptions));
 
     // Define mail options
     let mailOptions = {
-        from: fromEmail, // Use the fromEmail parameter dynamically
+        from:  'gestionstockapii@gmail.com', // Use the fromEmail parameter dynamically
         to: 'gestionstockapii@gmail.com',
         subject: subject,
-        text: message
+        template: 'contactemail',
+        context: {
+            email:email,
+            message: message,
+        }
     };
+    
 
     try {
         // Send email

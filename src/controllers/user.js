@@ -144,11 +144,11 @@ const resetPassword = async (req, res) => {
 };
 
 const sendContactEmail = async (req, res) => {
-  const { fromEmail, message } = req.body;
+  const { email, message } = req.body;
   const subject = 'Contact Form Submission';
 
   try {
-      const result = await contactemail(fromEmail, subject, message); // Use contactemail function
+      const result = await contactemail(subject , email , message ); // Use contactemail function
       if (result.status === 'success') {
           res.status(200).json({ message: 'Email sent successfully!' });
       } else {

@@ -91,7 +91,12 @@ const userSchema = new mongoose.Schema({
   isDeactivated: {
     type: Boolean,
     default: false 
+  },
+  wasDeactivated: {
+    type: Boolean,
+    default: false // Initialize wasDeactivated with a default value of false
   }
+
 },
 
 { timestamps: true });
