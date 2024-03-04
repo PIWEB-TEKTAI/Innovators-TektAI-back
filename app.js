@@ -33,7 +33,6 @@ app.use(cors({
   origin: 'http://localhost:5173' , 
   credentials: true
 }));
-app.use('/api', userRouter);
 
 
 // parse requests of content-type - application/x-www-form-urlencoded

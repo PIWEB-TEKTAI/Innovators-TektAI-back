@@ -12,5 +12,6 @@ router.get('/securedResource', authMiddleware, (req, res) => {
   
 router.post("/signout", controller.signout);
 router.post("/setToken", controller.signInWithGoogle);
+router.put("/deactivate", authMiddleware, controller.deactivateAccount);
 
 module.exports = router;

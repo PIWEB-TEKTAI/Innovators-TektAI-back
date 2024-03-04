@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt')
 
 
 const userSchema = new mongoose.Schema({
@@ -96,17 +95,23 @@ const userSchema = new mongoose.Schema({
         required: [true, 'please provide a user role'],
     },
 
-    previousPasswords: [{ type: String }]
-  },
+    previousPasswords: [{ type: String }],
 
+
+  isDeactivated: {
+    type: Boolean,
+    default: false 
+  },
+  wasDeactivated: {
+    type: Boolean,
+    default: false // Initialize wasDeactivated with a default value of false
+  }
+
+},
 
 { timestamps: true });
 
 
-userSchema.pre('save', async function (){
-  const salt =await bcrypt.genSalt(10)
-  this.password= await bcrypt.hash(this.password, salt)
-})
 
 
 const User = mongoose.model('User', userSchema);
