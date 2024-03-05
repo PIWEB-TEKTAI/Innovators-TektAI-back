@@ -68,7 +68,6 @@ app.use("/Admin", admin);
 //recaptcha 
 app.post("/verify-captcha", async (req, res) => {
   const { token } = req.body;
-  console.log(token)
 
   try {
     const response = await axios.post(
