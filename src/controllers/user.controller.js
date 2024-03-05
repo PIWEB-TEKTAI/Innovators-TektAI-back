@@ -1,9 +1,10 @@
 const config = require("../configs/auth.config");
-const User = require("/src/models/user");
+const User = require("../models/user");
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-const user = require("/src/models/user");
+const user = require("../models/user");
+
 
 exports.profile = async (req, res) => {
   try {
@@ -24,20 +25,27 @@ exports.profile = async (req, res) => {
   }
   };
 
-exports.imageUpload = async (req, res)=>{
-  console.log("upload")
-  const userId = req.user.id
-  console.log(req.file)
-  const userObject = req.file ?{
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  }:{ ...req.body }
-  const user = await User.findByIdAndUpdate({ _id:userId } ,userObject , { new:true ,runValidators: true })
-  if(!user){
-      throw new NotFoundError(`NO user with id ${userId}`)
+exports.imageUpload = async (req, res) => {
+  console.log("upload");
+  const userId = req.user.id;
+  console.log(req.file);
+  const userObject = req.file
+    ? {
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+      }
+    : { ...req.body };
+  const user = await User.findByIdAndUpdate(
+    userId,
+    userObject,
+    { new: true, runValidators: true }
+  );
+  if (!user) {
+    throw new NotFoundError(`NO user with id ${userId}`);
   }
-  
-  res.status(200).json( user )
-}
+
+  res.status(200).json(user);
+};
+
 exports.updatedUser = async (req, res) => {
   const userId = req.user.id;
   let updatedUserData = req.body;
@@ -93,3 +101,42 @@ exports.checkEmailUnique = async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+
+// Fonction pour récupérer les statistiques du nombre de challengers, d'entreprises et d'administrateurs
+exports.getStats = async (req, res) => {
+  try {
+    // Déterminer la période pour laquelle vous souhaitez récupérer les statistiques
+    // Vous pouvez recevoir cela depuis les paramètres de la requête ou l'envoyer directement dans le corps de la requête
+    // Ici, nous supposons que la période est envoyée dans le corps de la requête sous la forme d'un objet avec une propriété "period"
+    const { period } = req.body;
+
+    // Définir les dates de début et de fin en fonction de la période sélectionnée
+    let startDate, endDate;
+
+    // Logique pour déterminer les dates de début et de fin en fonction de la période sélectionnée
+    // Vous pouvez utiliser différentes méthodes pour calculer les dates en fonction de votre logique métier
+
+    // Ici, nous supposons que la période est l'ensemble du mois précédent
+    if (period === 'lastMonth') {
+      const today = new Date();
+      const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      startDate = firstDayOfLastMonth;
+      endDate = new Date(firstDayOfLastMonth.getFullYear(), firstDayOfLastMonth.getMonth() + 1, 0);
+    } else if (period === 'thisWeek') {
+      // Logique pour définir les dates de début et de fin pour la semaine en cours
+      // Ici, vous pouvez utiliser des bibliothèques comme moment.js ou écrire votre propre logique pour calculer les dates
+    }
+
+    // Récupérer les statistiques pour les challengers, les entreprises et les administrateurs
+    const challengerCount = await User.countDocuments({ role: 'challenger', createdAt: { $gte: startDate, $lte: endDate } });
+    const companyCount = await User.countDocuments({ role: 'company', createdAt: { $gte: startDate, $lte: endDate } });
+    const adminCount = await User.countDocuments({ role: 'admin', createdAt: { $gte: startDate, $lte: endDate } });
+
+    // Retourner les statistiques
+    return res.status(200).json({ challengerCount, companyCount, adminCount });
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
