@@ -27,7 +27,7 @@ exports.signin = async (req, res) => {
     }
 
 
-    if (user.state !== 'validated') {
+    if (user.state !== 'validated' && user.role == 'company') {
       return res.status(401).send({ message: 'User not approved' });
     }
 
