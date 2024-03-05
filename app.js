@@ -11,7 +11,10 @@ const axios = require('axios')
 var authRouter = require('./src/routes/auth.route');
 const userRouter = require('./src/routes/user');
 const admin = require('./src/routes/SuperAdmin');
+const adminRouter = require('./src/routes/admin.route');
+
 const dotenv = require('dotenv');
+const authMiddleware = require('./src/middlewares/authMiddleware');
 
 dotenv.config();
 
@@ -30,6 +33,7 @@ app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:5173' , 
   credentials: true
+  
 }));
 
 
@@ -63,6 +67,8 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use("/Admin", admin);
+app.use("/admin2", authMiddleware,adminRouter);
+
 
 
 //recaptcha 

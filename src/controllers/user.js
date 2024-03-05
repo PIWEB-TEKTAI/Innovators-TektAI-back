@@ -36,7 +36,11 @@ const register = async (req,res) =>{
                 professionnalFields: companyProfessionnalFields
               }
         })
-
+        if (req.body.role === 'challenger') {
+          user.AlreadyCompany = false
+        }else if (req.body.role === 'company') {
+          user.AlreadyCompany = true
+        } 
         const createdUser = user.save();
         if(createdUser){
             const token = await Token.create({ userId: user._id, token: crypto.randomBytes(120).toString('hex') });
