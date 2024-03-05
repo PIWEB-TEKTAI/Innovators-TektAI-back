@@ -20,5 +20,7 @@ router.post('/forgotPassword', user.forgotPassword);
 router.post('/resetPassword/:id/:token', user.resetPassword);
 router.post('/contact', user.sendContactEmail);
 
+router.put('/switchAccount',authMiddleware, controller.switchAccount);
+router.put('/directlySwitchAccount',authMiddleware, controller.directlySwitchAccount);
 
 module.exports = router

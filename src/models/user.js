@@ -112,8 +112,12 @@ const userSchema = new mongoose.Schema({
   wasDeactivated: {
     type: Boolean,
     default: false // Initialize wasDeactivated with a default value of false
+  },
+  AlreadyCompany:Boolean,
+  isDemandingToSwitchAccount: {
+    type: Boolean,
+    default: false // Initialize wasDeactivated with a default value of false
   }
-
 },
 
 

@@ -73,16 +73,11 @@ exports.signin = async (req, res) => {
       }
     );
 
-
-    const authorities = [];
-    authorities.push('ROLE_' + user.role.toUpperCase());
-
-
     res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     res.status(200).send({
       id: user._id,
       email: user.email,
-      role: authorities,
+      role: user.role,
       token: token,
       // Include a flag indicating whether the account was reactivated
       wasReactivated: !user.isDeactivated && user.wasDeactivated,
@@ -111,6 +106,8 @@ exports.signInWithGoogle = async (req, res) => {
         isExternalUser: true,
         state: "validated",
         password: "",
+        isDemandingToSwitchAccount:false,
+        AlreadyCompany:false,
       };
 
       const newUser = new User({
@@ -138,9 +135,9 @@ exports.signInWithGoogle = async (req, res) => {
           }
         );
         console.log(token);
-        res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+        res.cookie('token',token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
         
-        return res.status(201).json({ token, message: 'Google sign-in successful' });
+        return res.status(201).json({ role: createdUser.role, token, message: 'Google sign-in successful' });
       }
     } else if (user && user.isExternalUser == false) {
       return res.status(401).json({ message: "An account with the email address you're trying to use already exists. If you've previously signed up using a password, you can sign in directly. If you forgot your password, you can recover it. Alternatively, if you've signed up with Google using this email, please use the Google sign-in option." });
@@ -161,9 +158,9 @@ exports.signInWithGoogle = async (req, res) => {
           expiresIn: 86400, // 24 hours
         }
       );
-      res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+      res.cookie('token',token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
       
-      return res.status(200).json({ token, message: 'Google sign-in successful' });
+      return res.status(200).json({ role: user.role ,token, message: 'Google sign-in successful' });
     }
   } catch (err) {
     console.error(err);

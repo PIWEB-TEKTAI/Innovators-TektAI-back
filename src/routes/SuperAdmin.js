@@ -90,7 +90,7 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    res.status(200).json({ message: 'Changement d\'état de l\'utilisateur', user: user });
+    res.status(200).json({ message: 'Switch to company succesfully', user: user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Erreur serveur' });

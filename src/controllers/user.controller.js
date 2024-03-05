@@ -70,9 +70,9 @@ exports.updateCompany = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+    res.status(200).json({ message: 'company updated successfully', user: updatedUser });
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error('Error updating company:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -92,3 +92,55 @@ exports.checkEmailUnique = async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+exports.switchAccount = async (req, res) => {
+  const userId = req.user.id;
+  const updatedCompanyData = req.body; // Assuming company details are under 'company' property in the request body
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { 'company': updatedCompanyData,
+      isDemandingToSwitchAccount: true
+     } },
+
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    updatedUser.isDemandingToSwitchAccount = true;
+    res.status(200).json({ message: 'Request for account switch added successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Error acount switch:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+exports.directlySwitchAccount = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const user = await User.findById(userId);
+    if(user.role == "challenger"){
+      newRole = "company"
+    }else if(user.role == "company"){
+      newRole = "challenger"
+    }
+    if (!user) {
+      // Handle case where user is not found
+      console.error('User not found');
+      return res.status(404).send({message:"not found"}); // or throw an error, depending on your use case
+    }
+
+    // Update the user's role
+    user.role = newRole;
+
+    // Save the updated user
+    const updatedUser = await user.save();
+
+    return res.status(200).send(updatedUser);
+  } catch (error) {
+    // Handle error, e.g., log it or return an error response
+    console.error('Error updating user role:', error);
+    throw error;
+  }
+};
