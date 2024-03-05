@@ -79,6 +79,10 @@ const userSchema = new mongoose.Schema({
       }
     },
 
+    permissions: {
+      type: Array,
+    },
+
    isEmailVerified:{
         type:Boolean
    },
@@ -109,8 +113,13 @@ const userSchema = new mongoose.Schema({
 
 },
 
+
+
+
 { timestamps: true });
 
+
+userSchema.set('primaryKey', 'email');
 
 
 

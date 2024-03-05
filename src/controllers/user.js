@@ -1,4 +1,4 @@
-const User = require('../models/user')
+const User = require('/src/models/user')
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const sendEmail = require('../utils/sendEmail')

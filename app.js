@@ -2,26 +2,24 @@ const express = require('express');
 const connectDB = require('./src/configs/db');
 const cookieParser = require('cookie-parser');
 
-const dotenv = require('dotenv')
 const cors = require("cors");
 const cookieSession = require("cookie-session");
 const path = require('path');
 const axios = require('axios')
-dotenv.config()
-const app = express();
-
-const server = require('http').createServer(app)
 
 //routes 
 var authRouter = require('./src/routes/auth.route');
 const userRouter = require('./src/routes/user');
+const admin = require('./src/routes/SuperAdmin');
+const dotenv = require('dotenv');
 
-var corsOptions = {
-  origin: 'http://localhost:5173',
-  credentials:true
-};
+dotenv.config();
 
-app.use(cors(corsOptions));
+const app = express();
+const server = require('http').createServer(app);
+
+
+
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.header('Access-Control-Allow-Credentials', true);
@@ -64,7 +62,7 @@ app.use(function(err, req, res, next) {
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
-
+app.use("/Admin", admin);
 
 
 //recaptcha 
