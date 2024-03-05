@@ -1,9 +1,8 @@
 const config = require("../configs/auth.config");
-const User = require("/src/models/user");
+const User = require("../models/User");
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-const user = require("/src/models/user");
 
 exports.profile = async (req, res) => {
   try {
