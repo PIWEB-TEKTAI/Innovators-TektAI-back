@@ -1,6 +1,5 @@
 const config = require("../configs/auth.config");
 const User = require("../models/User");
-
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
@@ -23,20 +22,27 @@ exports.profile = async (req, res) => {
   }
   };
 
-exports.imageUpload = async (req, res)=>{
-  console.log("upload")
-  const userId = req.user.id
-  console.log(req.file)
-  const userObject = req.file ?{
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  }:{ ...req.body }
-  const user = await User.findByIdAndUpdate({ _id:userId } ,userObject , { new:true ,runValidators: true })
-  if(!user){
-      throw new NotFoundError(`NO user with id ${userId}`)
+exports.imageUpload = async (req, res) => {
+  console.log("upload");
+  const userId = req.user.id;
+  console.log(req.file);
+  const userObject = req.file
+    ? {
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+      }
+    : { ...req.body };
+  const user = await User.findByIdAndUpdate(
+    userId,
+    userObject,
+    { new: true, runValidators: true }
+  );
+  if (!user) {
+    throw new NotFoundError(`NO user with id ${userId}`);
   }
-  
-  res.status(200).json( user )
-}
+
+  res.status(200).json(user);
+};
+
 exports.updatedUser = async (req, res) => {
   const userId = req.user.id;
   let updatedUserData = req.body;
