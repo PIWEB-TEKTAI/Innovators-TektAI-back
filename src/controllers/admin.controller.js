@@ -24,6 +24,7 @@ exports.acceptSwitchRequest = async (req, res) => {
       // Update the user's role
       user.role = "company";
       user.isDemandingToSwitchAccount=false;
+      user.state ="validated";
       user.AlreadyCompany = true;
   
       // Save the updated user

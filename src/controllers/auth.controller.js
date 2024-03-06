@@ -9,11 +9,13 @@ exports.signin = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email }).populate('role', '-__v');
 
-
     if (!user) {
       return res.status(404).send({ message: 'User Not found.' });
     }
 
+    if(user.isExternalUser){
+      return res.status(401).send({ message: 'you should google Sign in' });
+    }
 
     const passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
 

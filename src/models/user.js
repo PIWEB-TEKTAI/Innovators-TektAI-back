@@ -93,7 +93,7 @@ const userSchema = new mongoose.Schema({
 
    state:{
         type:String,
-        enum: ['validated','not validated'],
+        enum: ['validated','not validated','blocked','archive'],
         default:"not validated",
     },
     role: {

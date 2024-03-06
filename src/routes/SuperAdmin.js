@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/User'); // Import your User model
-
+var bcrypt = require("bcryptjs");
 router.get('/', async (req, res) => {
   try {
     const companies = await User.find({ role: 'challenger' });
@@ -22,6 +22,21 @@ router.get('/Company', async (req, res) => {
 
     if (!companies || companies.length === 0) {
       return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
+    }
+
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+router.get('/Archive', async (req, res) => {
+  try {
+    const companies = await User.find({ state: 'archive' });
+
+    if (!companies || companies.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "archive" trouvé' });
     }
 
     res.status(200).json(companies);
@@ -149,13 +164,15 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
     });
 });
 //Ajouter un Challanger Account
-router.post('/AddChallengerByAdmin',function(req,res)
+router.post('/AddChallengerByAdmin',async function(req,res)
 {
+  const salt =await bcrypt.genSalt(10)
+  const cryptedPassword= await bcrypt.hash(req.body.password, salt)
     new User({
         FirstName:req.body.FirstName,
         LastName:req.body.LastName,
         email:req.body.email,
-        password:req.body.password,
+        password:cryptedPassword,
         imageUrl:req.body.imageUrl,
         birthDate:req.body.birthDate,
         phone:req.body.phone,
@@ -175,6 +192,7 @@ router.post('/AddChallengerByAdmin',function(req,res)
       phone: 'no',
       professionnalFields: "no",
     },
+   
     }).save(res.send("challenger added"))
 });
 router.post('/AddCompanyByAdmin', function (req, res) {
