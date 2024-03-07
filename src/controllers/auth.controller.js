@@ -7,18 +7,26 @@ const User = require("../models/User");
 
 exports.signin = async (req, res) => {
   try {
+
     const user = await User.findOne({ email: req.body.email }).populate('role', '-__v');
+
 
     if (!user) {
       return res.status(404).send({ message: 'User Not found.' });
     }
 
-    if(user.isExternalUser){
-      return res.status(401).send({ message: 'you should google Sign in' });
-    }
 
     const passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+    if(user.isExternalUser){
+      return res.status(401).send({ message: 'you should google Sign in' });
 
+    }
+    if(user.state=='blocked'){
+      return res.status(401).send({ message: 'you are blocked for some reasons' });
+    }
+ if(user.state=='archive'){
+      return res.status(401).send({ message: 'User Not found' });
+    }
 
     if (!passwordIsValid) {
       return res.status(401).send({ message: 'Invalid Password!' });
@@ -27,8 +35,8 @@ exports.signin = async (req, res) => {
     if (!user.isEmailVerified) {
       return res.status(401).send({ message: 'Please verify your email' });
     }
-
-
+    console.log(user.isExternalUser)
+  
     if (user.state !== 'validated' && user.role == 'company') {
       return res.status(401).send({ message: 'User not approved' });
     }
@@ -144,6 +152,12 @@ exports.signInWithGoogle = async (req, res) => {
     } else if (user && user.isExternalUser == false) {
       return res.status(401).json({ message: "An account with the email address you're trying to use already exists. If you've previously signed up using a password, you can sign in directly. If you forgot your password, you can recover it. Alternatively, if you've signed up with Google using this email, please use the Google sign-in option." });
     } else if (user && user.isExternalUser == true) {
+      if(user.state=='blocked'){
+        return res.status(401).send({ message: 'you are blocked for some reasons' });
+      }
+      if(user.state=='archive'){
+        return res.status(401).send({ message: 'User Not found' });
+      }
       const token = jwt.sign(
         {
           id: user.id,
