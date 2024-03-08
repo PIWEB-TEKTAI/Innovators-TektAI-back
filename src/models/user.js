@@ -43,9 +43,9 @@ const userSchema = new mongoose.Schema({
   },
   occupation:{
     type:String,
-    required: function () {
+    /*required: function () {
       return !this.isExternalUser;
-    },  
+    },  */
   },
   Description:{
     type:String

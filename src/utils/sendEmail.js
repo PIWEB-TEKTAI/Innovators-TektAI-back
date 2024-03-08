@@ -2,6 +2,10 @@ const nodemailer = require('nodemailer');
 const hbs = require('nodemailer-express-handlebars');
 const path = require('path');
 
+function toTitleCase(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -28,16 +32,16 @@ const handlebarOptions = {
 transporter.use('compile', hbs(handlebarOptions));
 
 // Function to send email
-const sendEmail = async (email, subject, template, link, FirstName, LastName) => {
+const sendEmail = async (email, subject, template, codeVerification, FirstName, LastName) => {
     const mailOptions = {
         from: 'laroussilina056@gmail.com',
         to: email,
         subject: subject,
         template: template,
         context: {
-            link: link,
-            FirstName: FirstName,
-            LastName: LastName,
+            code: codeVerification,
+            FirstName: toTitleCase(FirstName),
+            LastName: toTitleCase(LastName),
         }
     };
 

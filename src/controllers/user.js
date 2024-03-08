@@ -11,9 +11,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
+
+function generateVerificationCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
 const register = async (req,res) =>{
 
-    const { companyName,companyAddress,companyPhone,companyEmail,companyProfessionnalFields } = req.body
+    const { companyName,companyAddress,companyEmail } = req.body
     req.body.isEmailVerified = false;
 
     const salt =await bcrypt.genSalt(10)
@@ -31,9 +36,7 @@ const register = async (req,res) =>{
             company: { 
                 name: companyName,
                 address: companyAddress,
-                phone: companyPhone,
                 email: companyEmail,
-                professionnalFields: companyProfessionnalFields
               }
         })
         if (req.body.role === 'challenger') {
@@ -43,12 +46,12 @@ const register = async (req,res) =>{
         } 
         const createdUser = user.save();
         if(createdUser){
-            const token = await Token.create({ userId: user._id, token: crypto.randomBytes(120).toString('hex') });
-            
-            const link = `http://localhost:5173/auth/verifyEmail/${token.token}/${token.userId}`;
+            const verificationCode = generateVerificationCode();
+            const token = await Token.create({ userId: user._id, token:verificationCode});            
             const template = 'emailVerification'
-            await sendEmail(req.body.email , "Please confirm your Email address",template , link ,(await createdUser).FirstName , (await createdUser).LastName )
-            res.status(StatusCodes.CREATED).json({ msg: "Your registration is successful, Please check your email to verify your email" })
+           
+            await sendEmail(req.body.email , "Please confirm your Email address",template , verificationCode , req.body.FirstName , req.body.LastName)
+            res.status(StatusCodes.CREATED).json({ msg: "Your registration is successful, Please check your email to verify your email" , data:{ id:user._id } })
         }else{
             res.status(500).json( {msg :"Error Submitting data"})
         }
@@ -58,12 +61,12 @@ const register = async (req,res) =>{
 
 const emailVerification = async(req,res)=>{
 
-    const userId = req.params.id
-    const token = await Token.findOne({ token:req.params.token  })
+    const id = req.params.id
+    const token = await Token.findOne({ userId:id, token: req.body.token})
     if (!token){
-            return res.status(400).send({msg:'Your verification link may have expired. Please click on resend for verify your Email.'});
+            return res.status(400).send({msg:'Your verification code may have been expired.'});
     }
-    const user = await User.findByIdAndUpdate({ _id: userId },{isEmailVerified:true},{ new:true ,runValidators: true })
+    const user = await User.findByIdAndUpdate({ _id: token.userId },{isEmailVerified:true},{ new:true ,runValidators: true })
     if(!user){
         return res.status(401).send({msg:'We were unable to find a user for this verification. Please SignUp!'});
     } 
@@ -72,22 +75,59 @@ const emailVerification = async(req,res)=>{
 
 
 const resendEmailVerification = async(req,res)=>{
-    const { email } = req.body
-    const user = await User.findOne({email: email })
+
+    const userId  = req.params.id
+
+    const user = await User.findOne({_id: userId })
+
     if(!user){
         return res.status(401).send({msg:'We were unable to find a user for this verification. Please SignUp!'});
     } 
+
     if(user.isEmailVerified == true){
         return res.status(401).send({msg:'The email address is already verified!'});
     }
-    const token = await Token.create({ userId: user._id, token: crypto.randomBytes(64).toString('hex') })
 
-    const link = `http://localhost:5173/auth/verifyEmail/${token.token}/${token.userId}`;
-    const template = 'emailVerification'
-    await sendEmail(req.body.email , "Please confirm your Email address",template , link ,user.FirstName , user.LastName )
+    const oldVerificationCodes = await Token.deleteMany({userId:userId})
 
-    res.status(StatusCodes.OK).json({msg:'we have sent the verification link successfully'});
+    if(oldVerificationCodes){
+
+      const verificationCode = generateVerificationCode();
+      const token = await Token.create({ userId: user._id, token:verificationCode});            
+      const template = 'emailVerification'
+             
+      await sendEmail(user.email , "Please confirm your Email address", template , verificationCode , user.FirstName , user.LastName)
+  
+      res.status(StatusCodes.OK).json({msg:'we have sent the verification code successfully'});
+    }
 }
+
+
+const resendEmailVerificationAfterSignIn = async(req,res)=>{
+
+  const email  = req.body.email
+
+  const user = await User.findOne({email: email })
+
+  if(!user){
+      return res.status(401).send({msg:'We were unable to find a user for this verification. Please SignUp!'});
+  } 
+
+  const oldVerificationCodes = await Token.deleteMany({userId:user._id})
+
+  if(oldVerificationCodes){
+
+    const verificationCode = generateVerificationCode();
+    const token = await Token.create({ userId: user._id, token:verificationCode});            
+    const template = 'emailVerification'
+           
+    await sendEmail(user.email , "Please confirm your Email address", template , verificationCode , user.FirstName , user.LastName)
+
+    res.status(StatusCodes.OK).json({msg:'we have sent the verification code successfully',data:{ id:user._id } });
+  }
+}
+
+
 
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -175,7 +215,8 @@ module.exports = {
    resendEmailVerification,
    forgotPassword,
    resetPassword,
-   sendContactEmail
+   sendContactEmail,
+   resendEmailVerificationAfterSignIn
 }
 
 
