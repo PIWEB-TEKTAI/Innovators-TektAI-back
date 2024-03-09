@@ -1,7 +1,8 @@
 const express = require('express');
 const connectDB = require('./src/configs/db');
 const cookieParser = require('cookie-parser');
-
+const AboutUs = require('./src/models/aboutUs');
+const { initializeAboutUs } = require('./src/controllers/admin.controller');
 const cors = require("cors");
 const cookieSession = require("cookie-session");
 const path = require('path');
@@ -12,7 +13,7 @@ var authRouter = require('./src/routes/auth.route');
 const userRouter = require('./src/routes/user');
 const admin = require('./src/routes/SuperAdmin');
 const adminRouter = require('./src/routes/admin.route');
-
+const adminlanding = require('./src/routes/adminlanding.route');
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
 
@@ -68,6 +69,8 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use("/Admin", admin);
 app.use("/admin2", authMiddleware,adminRouter);
+app.use("/adminlan", adminlanding);
+
 
 
 
@@ -94,6 +97,7 @@ app.post("/verify-captcha", async (req, res) => {
 
 
 
+
 // Default route
 app.use('', async function (req, res) {
   res.json({ message: "la réponse du serveur" });
@@ -104,6 +108,7 @@ const port = process.env.PORT || 3000;
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
+    await initializeAboutUs(); 
     server.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
