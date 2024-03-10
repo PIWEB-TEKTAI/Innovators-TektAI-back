@@ -38,7 +38,7 @@ router.get('/admin', async (req, res) => {
       return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
     }
 
-    res.status(200).json(companies);
+    res.status(200).json(companies);    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Erreur serveur' });

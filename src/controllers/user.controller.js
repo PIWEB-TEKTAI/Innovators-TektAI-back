@@ -106,18 +106,10 @@ exports.checkEmailUnique = async (req, res) => {
 // Fonction pour récupérer les statistiques du nombre de challengers, d'entreprises et d'administrateurs
 exports.getStats = async (req, res) => {
   try {
-    // Déterminer la période pour laquelle vous souhaitez récupérer les statistiques
-    // Vous pouvez recevoir cela depuis les paramètres de la requête ou l'envoyer directement dans le corps de la requête
-    // Ici, nous supposons que la période est envoyée dans le corps de la requête sous la forme d'un objet avec une propriété "period"
     const { period } = req.body;
 
-    // Définir les dates de début et de fin en fonction de la période sélectionnée
     let startDate, endDate;
 
-    // Logique pour déterminer les dates de début et de fin en fonction de la période sélectionnée
-    // Vous pouvez utiliser différentes méthodes pour calculer les dates en fonction de votre logique métier
-
-    // Ici, nous supposons que la période est l'ensemble du mois précédent
     if (period === 'lastMonth') {
       const today = new Date();
       const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -128,12 +120,10 @@ exports.getStats = async (req, res) => {
       // Ici, vous pouvez utiliser des bibliothèques comme moment.js ou écrire votre propre logique pour calculer les dates
     }
 
-    // Récupérer les statistiques pour les challengers, les entreprises et les administrateurs
     const challengerCount = await User.countDocuments({ role: 'challenger', createdAt: { $gte: startDate, $lte: endDate } });
     const companyCount = await User.countDocuments({ role: 'company', createdAt: { $gte: startDate, $lte: endDate } });
     const adminCount = await User.countDocuments({ role: 'admin', createdAt: { $gte: startDate, $lte: endDate } });
 
-    // Retourner les statistiques
     return res.status(200).json({ challengerCount, companyCount, adminCount });
   } catch (error) {
     console.error('Error fetching statistics:', error);

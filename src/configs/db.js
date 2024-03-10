@@ -6,7 +6,7 @@ const connectDB = (url) => {
     return;
   }
 
-  return mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+  return mongoose.connect(url, {});
 };
 
 module.exports = connectDB;

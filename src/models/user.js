@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
   Education:{
     type:String
   },
-  skills:{
+  Skills:{
      type:Array
   },
   isExternalUser:{
