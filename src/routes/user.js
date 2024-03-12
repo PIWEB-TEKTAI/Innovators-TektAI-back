@@ -16,6 +16,9 @@ router.put('/updateProfile',authMiddleware,controller.updatedUser);
 router.post('/checkEmailUnique',authMiddleware,controller.checkEmailUnique)
 router.put('/updateCompany',authMiddleware,controller.updateCompany)
 
+
+
+
 router.post('/forgotPassword', user.forgotPassword);
 router.post('/resetPassword/:id/:token', user.resetPassword);
 router.post('/contact', user.sendContactEmail);

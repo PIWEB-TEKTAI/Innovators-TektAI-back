@@ -103,30 +103,3 @@ exports.checkEmailUnique = async (req, res) => {
 }
 
 
-// Fonction pour récupérer les statistiques du nombre de challengers, d'entreprises et d'administrateurs
-exports.getStats = async (req, res) => {
-  try {
-    const { period } = req.body;
-
-    let startDate, endDate;
-
-    if (period === 'lastMonth') {
-      const today = new Date();
-      const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      startDate = firstDayOfLastMonth;
-      endDate = new Date(firstDayOfLastMonth.getFullYear(), firstDayOfLastMonth.getMonth() + 1, 0);
-    } else if (period === 'thisWeek') {
-      // Logique pour définir les dates de début et de fin pour la semaine en cours
-      // Ici, vous pouvez utiliser des bibliothèques comme moment.js ou écrire votre propre logique pour calculer les dates
-    }
-
-    const challengerCount = await User.countDocuments({ role: 'challenger', createdAt: { $gte: startDate, $lte: endDate } });
-    const companyCount = await User.countDocuments({ role: 'company', createdAt: { $gte: startDate, $lte: endDate } });
-    const adminCount = await User.countDocuments({ role: 'admin', createdAt: { $gte: startDate, $lte: endDate } });
-
-    return res.status(200).json({ challengerCount, companyCount, adminCount });
-  } catch (error) {
-    console.error('Error fetching statistics:', error);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
-};
