@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema({
     type:String
   },
   skills:{
-     type:Array
+     type:Array,
   },
   isExternalUser:{
     type:Boolean
@@ -98,7 +98,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["super admin", "admin" ,"challenger","company"],
+        enum: ["super admin", "admin" ,"challenger","company","SuperAdmin"],
         required: [true, 'please provide a user role'],
     },
 
