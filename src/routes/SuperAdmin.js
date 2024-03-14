@@ -4,7 +4,8 @@ const User = require('../models/User'); // Import your User model
 var bcrypt = require("bcryptjs");
 router.get('/', async (req, res) => {
   try {
-    const companies = await User.find({ role: 'challenger' });
+    const companies = await User.find({ role: 'challenger', state: { $ne: 'archive' } });
+
 
     if (!companies || companies.length === 0) {
       return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
 });
 router.get('/Company', async (req, res) => {
   try {
-    const companies = await User.find({ role: 'company' });
+    const companies = await User.find({ role: 'company', state: { $ne: 'archive' }  });
 
     if (!companies || companies.length === 0) {
       return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
@@ -47,7 +48,7 @@ router.get('/Archive', async (req, res) => {
 });
 router.get('/admin', async (req, res) => {
   try {
-    const companies = await User.find({ role: 'admin' });
+    const companies = await User.find({ role: 'admin', state: { $ne: 'archive' }  });
 
     if (!companies || companies.length === 0) {
       return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
@@ -79,7 +80,7 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
 
     const Newname = req.body.company.name;
     const Newaddress = req.body.company.address;
-    const NewemailCompany = req.body.company.emailCompany;
+    const NewemailCompany = req.body.company.email;
     const Newdescription = req.body.company.description;
     const Newphone = req.body.company.phone;
     const NewprofessionnalFields = [];
@@ -91,7 +92,7 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
         $set: {
           'company.name': Newname,
           'company.address': Newaddress,
-          'company.emailCompany': NewemailCompany,
+          'company.email': NewemailCompany,
           'company.description': Newdescription,
           'company.phone': Newphone,
           'company.professionnalFields': NewprofessionnalFields,
@@ -134,25 +135,42 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
         }
       });
 
-    router.post('/AddAdminBySA', function (req, res) {
-  const newAdmin = new User({
-    FirstName: req.body.FirstName,
-    LastName: req.body.LastName,
-    email: req.body.email,
-    password: req.body.password,
-    imageUrl: req.body.imageUrl,
-    birthDate: req.body.birthDate,
-    phone: req.body.phone,
-    address: req.body.address,
-    occupation: req.body.occupation,
-    Description: req.body.Description,
-    Education: req.body.Education,
-    Skills: req.body.Skills,
-    isEmailVerified: true,
-    state: 'validated',
-    role: 'admin',
-    permissions: req.body.permissions, 
-  });
+      router.post('/AddAdminBySA', async function (req, res) {
+        const salt =await bcrypt.genSalt(10)
+    const cryptedPassword= await bcrypt.hash(req.body.password, salt)
+    const newAdmin = new User({
+      FirstName: req.body.FirstName,
+      LastName: req.body.LastName,
+      email: req.body.email,
+      password: cryptedPassword,
+      occupation:'AdminAccess',
+      state: 'validated',
+      role: 'admin',
+      permissions: req.body.permissions, 
+    });
+    
+      newAdmin.save()
+        .then(() => {
+          res.send("Admin added");
+        })
+        .catch((error) => {
+          console.error("Error adding admin:", error);
+          res.status(500).send("Internal Server Error");
+        });
+    });
+  router.post('/AddSAdminBySA', async function (req, res) {
+    const salt =await bcrypt.genSalt(10)
+const cryptedPassword= await bcrypt.hash(req.body.password, salt)
+const newAdmin = new User({
+  FirstName: req.body.FirstName,
+  LastName: req.body.LastName,
+  email: req.body.email,
+  password: cryptedPassword,
+  occupation:'AdminAccess',
+  state: 'validated',
+  role: 'SuperAdmin',
+  permissions: req.body.permissions, 
+});
 
   newAdmin.save()
     .then(() => {
@@ -185,22 +203,27 @@ router.post('/AddChallengerByAdmin',async function(req,res)
         state:'not validated',
         role:'challenger',
         company: {
-      name: 'no',
-      address: 'no',
-      emailCompany: 'no',
-      description: 'no',
-      phone: 'no',
+      name: null,
+      address: null,
+      emailCompany: null,
+      description: null,
+      phone: null,
       professionnalFields: "no",
     },
    
     }).save(res.send("challenger added"))
 });
-router.post('/AddCompanyByAdmin', function (req, res) {
+
+
+
+router.post('/AddCompanyByAdmin', async function (req, res) {
+  const salt =await bcrypt.genSalt(10)
+  const cryptedPassword= await bcrypt.hash(req.body.password, salt)
   const newUser = new User({
     FirstName: req.body.FirstName,
     LastName: req.body.LastName,
     email: req.body.email,
-    password: req.body.password,
+    password: cryptedPassword,
     imageUrl: req.body.imageUrl,
     birthDate: req.body.birthDate,
     phone: req.body.phone,
@@ -234,13 +257,15 @@ router.post('/AddCompanyByAdmin', function (req, res) {
 });
 
 
-router.post('/AddChallengerNormal',function(req,res)
+router.post('/AddChallengerNormal',async function(req,res)
 {
+  const salt =await bcrypt.genSalt(10)
+  const cryptedPassword= await bcrypt.hash(req.body.password, salt)
     new User({
         FirstName:req.body.FirstName,
         LastName:req.body.LastName,
         email:req.body.email,
-        password:req.body.password,
+        password:cryptedPassword,
         imageUrl:req.body.imageUrl,
         phone:req.body.phone,
         address:req.body.address,
