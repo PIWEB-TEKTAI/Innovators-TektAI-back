@@ -117,8 +117,9 @@ const userSchema = new mongoose.Schema({
   isDemandingToSwitchAccount: {
     type: Boolean,
     default: false // Initialize wasDeactivated with a default value of false
-  }
-},
+  },
+  failedLoginAttempts: { type: Number, default: 0 },
+  lastFailedAttempt: { type: Date, default: null },},
 
 { timestamps: true });
 
