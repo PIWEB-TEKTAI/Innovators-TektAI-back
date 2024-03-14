@@ -6,6 +6,9 @@ const User = require("../models/User");
 
 
 exports.signin = async (req, res) => {
+  const maxFailedAttempts = 3;
+const lockoutDurationInMinutes = 60;
+
   try {
 
     const user = await User.findOne({ email: req.body.email }).populate('role', '-__v');
@@ -29,7 +32,24 @@ exports.signin = async (req, res) => {
     }
 
     if (!passwordIsValid) {
-      return res.status(401).send({ message: 'Invalid Password!' });
+      const now = new Date();
+        if (
+          user.lastFailedAttempt &&
+          now - user.lastFailedAttempt > lockoutDurationInMinutes * 60 * 1000
+        ) {
+          user.failedLoginAttempts = 0;
+        }
+        user.failedLoginAttempts += 1;
+        user.lastFailedAttempt = now;
+        await user.save();
+
+        if (user.failedLoginAttempts >= maxFailedAttempts) {
+          return res.status(401).send({ message: 'maxFailedAttempts passed' });
+
+        } else {
+          return res.status(401).send({ message: 'Invalid Password!' });
+
+        }
     }
    
     if (!user.isEmailVerified) {
@@ -65,7 +85,8 @@ exports.signin = async (req, res) => {
       user.wasDeactivated = false;
     }
 
-    
+
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -82,7 +103,9 @@ exports.signin = async (req, res) => {
         expiresIn: 86400, // 24 hours
       }
     );
-
+    user.failedLoginAttempts = 0;
+    user.lastFailedAttempt = null;
+    user.save();
     res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     res.status(200).send({
       id: user._id,
