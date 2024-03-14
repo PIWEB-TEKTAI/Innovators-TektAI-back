@@ -2,7 +2,7 @@ const express = require('express');
 const connectDB = require('./src/configs/db');
 const cookieParser = require('cookie-parser');
 const AboutUs = require('./src/models/aboutUs');
-const { initializeAboutUs } = require('./src/controllers/admin.controller');
+const { initializeAboutUs, initializewhyUs } = require('./src/controllers/admin.controller');
 const cors = require("cors");
 const cookieSession = require("cookie-session");
 const path = require('path');
@@ -109,6 +109,8 @@ const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
     await initializeAboutUs(); 
+    await initializewhyUs(); 
+
     server.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
