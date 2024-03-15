@@ -27,14 +27,14 @@ const server = require('http').createServer(app);
 
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5173');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.header('Access-Control-Allow-Credentials', true);
   next();
 });
 // parse requests of content-type - application/json
 app.use(express.json());
 app.use(cors({
-  origin: 'http://127.0.0.1:5173' , 
+  origin: 'http://localhost:5173' , 
   credentials: true
   
 }));
