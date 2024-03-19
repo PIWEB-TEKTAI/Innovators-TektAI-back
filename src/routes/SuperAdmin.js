@@ -146,6 +146,7 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
       occupation:'AdminAccess',
       state: 'validated',
       role: 'admin',
+      isEmailVerified:true,
       permissions: req.body.permissions, 
     });
     
