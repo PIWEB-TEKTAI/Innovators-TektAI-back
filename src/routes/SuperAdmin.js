@@ -2,7 +2,23 @@ var express = require('express');
 var router = express.Router();
 const User = require("../models/user");// Import your User model
 
-router.get('/', async (req, res) => {
+
+router.get('/All', async (req, res) => {
+  try {
+    const users = await User.find();
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur trouvé' });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+router.get('/challenger', async (req, res) => {
   try {
     const companies = await User.find({ role: 'challenger' });
 
@@ -16,7 +32,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
-router.get('/Company', async (req, res) => {
+router.get('/company', async (req, res) => {
   try {
     const companies = await User.find({ role: 'company' });
 
