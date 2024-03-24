@@ -7,8 +7,8 @@ const resetemail = async (toEmail, subject, template, resetPasswordLink, FirstNa
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'gestionstockapii@gmail.com',
-      pass: 'dhxo jaxk ewnv xsyr'
+      user: 'tektaitektai7@gmail.com',
+      pass: 'mhjk pgex okip mxtu'
     }
   });
 
@@ -29,7 +29,7 @@ transporter.use('compile', hbs(handlebarOptions));
 
   // Define mail options
   let mailOptions = {
-    from: 'gestionstockapii@gmail.com',
+    from: 'tektaitektai7@gmail.com',
     to: toEmail,
     subject: subject,
     template: template,
