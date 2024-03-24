@@ -2,7 +2,22 @@ var express = require('express');
 var router = express.Router();
 const User = require('../models/User'); // Import your User model
 var bcrypt = require("bcryptjs");
-router.get('/', async (req, res) => {
+router.get('/All', async (req, res) => {
+  try {
+    const companies = await User.find({  state: { $ne: 'archive' } });
+
+
+    if (!companies || companies.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
+    }
+
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+router.get('/challenger', async (req, res) => {
   try {
     const companies = await User.find({ role: 'challenger', state: { $ne: 'archive' } });
 
@@ -17,7 +32,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
-router.get('/Company', async (req, res) => {
+router.get('/company', async (req, res) => {
   try {
     const companies = await User.find({ role: 'company', state: { $ne: 'archive' }  });
 
@@ -328,6 +343,36 @@ router.put('/update/:email', function(req, res, next) {
           console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
           res.status(500).json({ error: "Erreur Interne du Serveur" });
       });
+});
+router.get('/All', async (req, res) => {
+  try {
+    const users = await User.find();
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur trouvé' });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+router.get('/challenger', async (req, res) => {
+  try {
+    const companies = await User.find({ role: 'challenger', state: { $ne: 'archive' } });
+
+
+    if (!companies || companies.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur avec le rôle "company" trouvé' });
+    }
+
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
 });
 
 module.exports = router;
