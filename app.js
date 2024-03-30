@@ -18,7 +18,8 @@ const termsRouter = require('./src/routes/TermsConditions')
 const adminlanding = require('./src/routes/adminlanding.route');
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
-
+const challenge = require('./src/models/challenge');
+const challengeRoute = require('./src/routes/challengeRoute')
 dotenv.config();
 
 const app = express();
@@ -73,6 +74,8 @@ app.use("/Admin", admin);
 app.use("/admin2", authMiddleware,adminRouter);
 app.use("/terms", termsRouter );
 app.use("/adminlan", adminlanding);
+app.use("/challenge",authMiddleware, challengeRoute);
+
 
 
 

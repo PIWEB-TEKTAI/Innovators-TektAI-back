@@ -23,9 +23,7 @@ exports.profile = async (req, res) => {
   };
 
 exports.imageUpload = async (req, res) => {
-  console.log("upload");
   const userId = req.user.id;
-  console.log(req.file);
   const userObject = req.file
     ? {
         imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,

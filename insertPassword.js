@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const User = require('./src/models/user'); // Adjust the path based on your project structure
+const User = require('./src/models/User'); // Adjust the path based on your project structure
 
 const passwordToHash = 'rouaida123'; // The password you want to hash
 
