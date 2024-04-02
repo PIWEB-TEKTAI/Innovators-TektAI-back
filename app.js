@@ -14,7 +14,7 @@ const userRouter = require('./src/routes/user');
 const admin = require('./src/routes/SuperAdmin');
 const adminRouter = require('./src/routes/admin.route');
 const termsRouter = require('./src/routes/TermsConditions')
-
+const challengeRouter = require('./src/routes/challenge.route');
 const adminlanding = require('./src/routes/adminlanding.route');
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
@@ -73,7 +73,7 @@ app.use("/Admin", admin);
 app.use("/admin2", authMiddleware,adminRouter);
 app.use("/terms", termsRouter );
 app.use("/adminlan", adminlanding);
-
+app.use("/challenge", challengeRouter);
 
 
 
