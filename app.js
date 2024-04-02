@@ -7,7 +7,6 @@ const cors = require("cors");
 const cookieSession = require("cookie-session");
 const path = require('path');
 const axios = require('axios')
-
 //routes 
 var authRouter = require('./src/routes/auth.route');
 const userRouter = require('./src/routes/user');
@@ -16,13 +15,18 @@ const adminRouter = require('./src/routes/admin.route');
 const termsRouter = require('./src/routes/TermsConditions')
 
 const adminlanding = require('./src/routes/adminlanding.route');
+const notifRouter = require('./src/routes/notifications');
+const challengeRoute = require('./src/routes/challengeRoute')
+
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
+const { initializeSocket } = require('./socket'); 
 
 dotenv.config();
 
 const app = express();
 const server = require('http').createServer(app);
+
 
 
 
@@ -53,6 +57,14 @@ app.use(express.urlencoded({ extended: true }));
 */
 
 
+//socket 
+
+
+initializeSocket(server);
+
+
+
+
 app.use(cookieParser());
 
 
@@ -71,8 +83,10 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use("/Admin", admin);
 app.use("/admin2", authMiddleware,adminRouter);
-app.use("/terms", termsRouter );
+app.use("/terms" ,termsRouter );
 app.use("/adminlan", adminlanding);
+app.use("/notif" , notifRouter);
+app.use("/challenge",authMiddleware, challengeRoute);
 
 
 
@@ -96,6 +110,7 @@ app.post("/verify-captcha", async (req, res) => {
     res.status(500).send("Error verifying reCAPTCHA");
    }
 });
+
 
 
 

@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const Notification = require('../models/notifications');
 const { StatusCodes } = require('http-status-codes')
 const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const sendEmail = require('../utils/sendEmail')
@@ -10,6 +11,7 @@ const contactemail = require('../utils/contactemail');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
+const { getSocketInstance } = require('../../socket');
 
 
 function generateVerificationCode() {
@@ -46,12 +48,23 @@ const register = async (req,res) =>{
         } 
         const createdUser = user.save();
         if(createdUser){
+          try{
+            const io = getSocketInstance();
             const verificationCode = generateVerificationCode();
             const token = await Token.create({ userId: user._id, token:verificationCode});            
-            const template = 'emailVerification'
-           
+            const template = 'emailVerification'            
             await sendEmail(req.body.email , "Please confirm your Email address",template , verificationCode , req.body.FirstName , req.body.LastName)
+            await io.emit('newUserRegistered', { firstname:user.FirstName , lastname:user.LastName }); 
+            const notifications = await Notification.create({
+                title:"User Registration",
+                content:"has create an account",
+                createdAccountUserId:user._id,
+                isAdminNotification:true
+            })
             res.status(StatusCodes.CREATED).json({ msg: "Your registration is successful, Please check your email to verify your email" , data:{ id:user._id } })
+          }catch(error){
+             res.status(500).json( {msg :"Error Submitting data"})
+          }
         }else{
             res.status(500).json( {msg :"Error Submitting data"})
         }

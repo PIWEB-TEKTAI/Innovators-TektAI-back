@@ -2,10 +2,12 @@ const express = require("express")
 const user = require('../controllers/user')
 const router = express.Router();
 
+
 const controller = require("../controllers/user.controller");
 const { verifyToken ,verifyAndDecodeToken, isAdmin, isSuperAdmin, isChallenger, isCompany } = require("../middlewares/authjwt");
 const authMiddleware = require('../middlewares/authMiddleware');
 const multer = require('../middlewares/multer.config')
+
 
 router.post('/register', user.register);
 router.post('/EmailVerification/:id',user.emailVerification);
