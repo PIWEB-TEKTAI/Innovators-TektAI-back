@@ -11,6 +11,7 @@ const axios = require('axios')
 var authRouter = require('./src/routes/auth.route');
 const userRouter = require('./src/routes/user');
 const admin = require('./src/routes/SuperAdmin');
+const Challenge = require('./src/routes/challenges');
 const adminRouter = require('./src/routes/admin.route');
 const termsRouter = require('./src/routes/TermsConditions')
 
@@ -38,9 +39,8 @@ app.use((req, res, next) => {
 // parse requests of content-type - application/json
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173' , 
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true
-  
 }));
 
 
@@ -82,11 +82,13 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use("/Admin", admin);
+
 app.use("/admin2", authMiddleware,adminRouter);
 app.use("/terms" ,termsRouter );
 app.use("/adminlan", adminlanding);
 app.use("/notif" , notifRouter);
-app.use("/challenge",authMiddleware, challengeRoute);
+app.use("/challenge", challengeRoute);
+app.use("/challenges",Challenge);
 
 
 

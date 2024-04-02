@@ -4,6 +4,7 @@ const ChallengeSchema = new mongoose.Schema({
   title: String,
   description:String,
   price:String,
+  image: String,
   status: {
     type: String,
     enum: ['open', 'completed', 'archived'],
@@ -29,6 +30,7 @@ const ChallengeSchema = new mongoose.Schema({
     fileUrl:String,
 
   },
+ 
 });
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);
