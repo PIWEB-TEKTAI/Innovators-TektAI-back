@@ -14,6 +14,7 @@ const admin = require('./src/routes/SuperAdmin');
 const Challenge = require('./src/routes/challenges');
 const adminRouter = require('./src/routes/admin.route');
 const termsRouter = require('./src/routes/TermsConditions')
+const challenge = require('./src/routes/challenge.route')
 
 const adminlanding = require('./src/routes/adminlanding.route');
 const notifRouter = require('./src/routes/notifications');
@@ -90,6 +91,7 @@ app.use("/notif" , notifRouter);
 app.use("/challenge", challengeRoute);
 app.use("/challenges",Challenge);
 
+app.use("/challenge", challenge);
 
 
 

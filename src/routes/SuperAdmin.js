@@ -375,4 +375,21 @@ router.get('/challenger', async (req, res) => {
   }
 });
 
+
+router.get('/challenges/:email', async (req, res) => {
+  try {
+    const userEmail = req.params.email; // Récupérer l'email de l'utilisateur depuis les paramètres de l'URL
+
+    // Trouver les challenges créés par l'utilisateur spécifié
+    const userChallenges = await Challenge.find({ createdBy: userEmail });
+
+    // Envoyer les challenges associés à cet utilisateur en réponse
+    res.status(200).json(userChallenges);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+
 module.exports = router;
