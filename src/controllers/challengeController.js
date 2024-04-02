@@ -1,14 +1,25 @@
 const Challenge = require('../models/challenge');
 
 exports.addChallenge = async (req, res) => {
-  try {
-    const fileUrl = req.file
-    ? {
-        fileUrl: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,
-      }
-    :null;  
-    console.log(fileUrl)  
-    req.body.dataset.fileUrl = fileUrl.fileUrl;
+  try {     
+    let imageUrl;
+    let fileUrl;
+    if (req.files && Object.keys(req.files).length > 0) {
+      Object.keys(req.files).forEach(key => {
+
+        const files = req.files[key];
+        files.forEach(file => {
+          console.log(file)
+          if (file.mimetype.startsWith('image')) {
+            imageUrl = `${file.filename}`;
+          } else {
+            fileUrl = `${file.filename}`;
+          }
+        });
+      });
+    }
+    req.body.dataset.fileUrl = fileUrl;
+    req.body.image = imageUrl;
     const challengeData = {
       ...req.body,
       createdBy: req.user.id // Assuming req.user.id contains the ID of the logged-in user

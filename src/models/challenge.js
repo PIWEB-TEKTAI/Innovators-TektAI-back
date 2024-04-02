@@ -29,6 +29,7 @@ const ChallengeSchema = new mongoose.Schema({
     fileUrl:String,
 
   },
+  image:String,
 });
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);
