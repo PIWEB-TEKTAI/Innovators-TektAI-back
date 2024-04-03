@@ -5,7 +5,7 @@ services:
   TektAIBack:
     container_name: tektai-back
     image: "tektai-back"
-    build: .\TEKTAI-BACK
+    build:  TEKTAI-BACK
     ports:
       - "3000:3000"   
     environment:
