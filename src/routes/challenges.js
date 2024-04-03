@@ -169,7 +169,7 @@ router.post('/AddChallenger', async function (req, res) {
       }
   
       // Assurez-vous que l'utilisateur est autorisé à modifier ce défi
-      if (challenge.createdBy !== userId) {
+      else if (challenge.createdBy != userId) {
         console.log("Unauthorized");
         return res.status(403).json({ message: 'Unauthorized' });
       }
@@ -201,7 +201,7 @@ router.post('/AddChallenger', async function (req, res) {
         return res.status(404).json({ message: 'Challenge not found' });
       }
   
-      if (challenge.createdBy !== userId) {
+      else if (challenge.createdBy != userId) {
         return res.status(403).json({ message: 'Unauthorized' });
       }
   
@@ -221,15 +221,16 @@ router.post('/AddChallenger', async function (req, res) {
   router.put('/completed/:id/update-status', authMiddleware, async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
-  
+  console.log("userid" + userId)
     try {
       const challenge = await Challenge.findById(id);
   
+      console.log("createdBy" + challenge.createdBy)
       if (!challenge) {
         return res.status(404).json({ message: 'Challenge not found' });
       }
   
-      if (challenge.createdBy !== userId) {
+      else if (challenge.createdBy != userId) {
         return res.status(403).json({ message: 'Unauthorized' });
       }
   
