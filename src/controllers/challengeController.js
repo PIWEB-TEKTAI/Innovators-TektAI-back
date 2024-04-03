@@ -1,4 +1,4 @@
-const Challenge = require('../models/challenge');
+const Challenge = require('../models/Challenge');
 
 exports.editChallenge = async (req, res) => {
     try {

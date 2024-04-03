@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Challenge=require('../models/challenge')
+var Challenge=require('../models/Challenge')
 const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/AllChallenge', async (req, res) => {
@@ -245,4 +245,6 @@ router.post('/AddChallenger', async function (req, res) {
       res.status(500).json({ message: 'Server error' });
     }
   });
+
+
 module.exports = router;
