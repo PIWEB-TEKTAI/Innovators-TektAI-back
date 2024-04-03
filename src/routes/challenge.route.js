@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const Challenge = require('../models/Challenge');
+//const challenge = require('../models/Challenge');
 const User = require('../models/User'); // Import your User model
 const authMiddleware = require('../middlewares/authMiddleware');
 
