@@ -11,8 +11,8 @@ exports.addSubmission = async (req, res) => {
             submittedBy:req.user.id,
             submissionDate:new Date(),
             description:req.body.description,
+            title:req.body.title
             
-            ...req.body,
         });
         newSubmission.files.push({
             name:  req.files.file[0].filename,
@@ -25,6 +25,23 @@ exports.addSubmission = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to add submission', error: error.message });
     }
+
 };
+exports.getSubmissionsByChallengeId = async (req, res) => {
+    const { challengeId } = req.params;
+  
+    try {
+      const submissions = await Submission.find({ challengeId });
+  
+      if (!submissions || submissions.length === 0) {
+        return res.status(404).json({ message: 'No submissions found for this challenge ID' });
+      }
+  
+      res.status(200).json(submissions);
+    } catch (error) {
+      console.error('Error retrieving submissions:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
 
 
