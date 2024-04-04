@@ -5,17 +5,38 @@ exports.editChallenge = async (req, res) => {
 
     const challenge = await Challenge.findById({_id:req.params.id});
 
-    if(req.file){
+    let imageUrl;
+    let fileUrl;
+    if (req.files && Object.keys(req.files).length > 0) {
+      Object.keys(req.files).forEach(key => {
+
+        const files = req.files[key];
+        files.forEach(file => {
+          console.log(file)
+          if (file.mimetype.startsWith('image')) {
+            imageUrl = `${file.filename}`;
+          } else {
+            fileUrl = `${file.filename}`;
+          }
+        });
+        req.body.dataset.fileUrl = fileUrl;
+        req.body.image = imageUrl;
+      });
+    }else {
+      req.body.dataset.fileUrl = challenge.dataset.fileUrl;
+      req.body.image = challenge.image
+    }
+
+    /*if(req.file){
         const fileUrl = req.file
         ? {
          fileUrl: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`,
        }
        :null;  
-        console.log(fileUrl)  
         req.body.dataset.fileUrl = fileUrl.fileUrl;
      }  else {
         req.body.dataset.fileUrl = challenge.dataset.fileUrl
-     }
+     }*/
      
       const updateData = {
         ...req.body
