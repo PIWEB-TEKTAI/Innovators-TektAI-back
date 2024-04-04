@@ -97,20 +97,18 @@ exports.addChallenge = async (req, res) => {
 
 exports.viewDetailschallenge = async (req, res) => {
   const challengeId = req.params.id;
+       
 
   try {
-      // Find the challenge by ID in the database
-      const challenge = await Challenge.findById(challengeId);
+      const challenge = await Challenge.findById(challengeId).populate('createdBy'); 
 
-      // Check if the challenge exists
+
       if (!challenge) {
           return res.status(404).json({ message: 'Challenge not found' });
       }
 
-      // Return the challenge details
       return res.status(200).json(challenge);
   } catch (error) {
-      // Handle any errors
       console.error('Error retrieving challenge details:', error);
       return res.status(500).json({ message: 'Internal server error' });
   }

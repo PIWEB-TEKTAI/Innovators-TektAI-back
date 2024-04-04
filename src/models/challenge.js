@@ -7,7 +7,7 @@ const ChallengeSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['open', 'completed', 'archived'],
-    default: 'open' 
+    default: 'open' // You can set a default value if needed
   },
   startDate: {
     type: Date,
