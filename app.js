@@ -14,11 +14,11 @@ const admin = require('./src/routes/SuperAdmin');
 const Challenge = require('./src/routes/challenges');
 const adminRouter = require('./src/routes/admin.route');
 const termsRouter = require('./src/routes/TermsConditions')
-const challenge = require('./src/routes/challenges');
 
 const adminlanding = require('./src/routes/adminlanding.route');
 const notifRouter = require('./src/routes/notifications');
 const challengeRoute = require('./src/routes/challengeRoute')
+const submissionRoute = require('./src/routes/submissionRoute')
 
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
@@ -88,8 +88,10 @@ app.use("/admin2", authMiddleware,adminRouter);
 app.use("/terms" ,termsRouter );
 app.use("/adminlan", adminlanding);
 app.use("/notif" , notifRouter);
-app.use("/challenge", challengeRoute);
+app.use("/challenge",authMiddleware, challengeRoute);
 app.use("/challenges",Challenge);
+app.use("/submissions",authMiddleware,submissionRoute);
+
 
 
 
