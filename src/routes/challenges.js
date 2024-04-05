@@ -3,7 +3,7 @@ var router = express.Router();
 var Challenge=require('../models/challenge')
 const authMiddleware = require('../middlewares/authMiddleware');
 
-router.get('/AllChallenge', async (req, res) => {
+router.get('/AllChallenge' ,  async (req, res) => {
     try {
         const challenge = await Challenge.find({  status: { $ne: 'archived' }});
        console.log(challenge)
@@ -18,7 +18,7 @@ router.get('/AllChallenge', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
       }
 });
-router.get('/OpenedChallenge', async (req, res) => {
+router.get('/OpenedChallenge', authMiddleware, async (req, res) => {
     try {
         const challenge = await Challenge.find({  status:'open'});
     
@@ -33,7 +33,7 @@ router.get('/OpenedChallenge', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
       }
 });
-router.get('/completedChallenge', async (req, res) => {
+router.get('/completedChallenge',authMiddleware, async (req, res) => {
     try {
         const challenge = await Challenge.find({  status:'completed'});
     
@@ -48,7 +48,7 @@ router.get('/completedChallenge', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
       }
 });
-router.get('/archivedChallenge', async (req, res) => {
+router.get('/archivedChallenge',authMiddleware, async (req, res) => {
     try {
         const challenge = await Challenge.find({  status:'archived'});
     
@@ -114,7 +114,6 @@ router.post('/AddChallenger', async function (req, res) {
     try {
       const id = req.params.id;
       const newStatus = req.body.status;
-  
       // Utilisation de findOneAndUpdate pour trouver et mettre à jour le défi
       const challenge = await Challenge.findOneAndUpdate(
         { _id: id }, // Utilisation de _id au lieu de id pour rechercher par ID

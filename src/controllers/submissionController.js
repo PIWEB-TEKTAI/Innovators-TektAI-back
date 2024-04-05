@@ -50,8 +50,8 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
   
     try {
         const submission = await Submission.findById(submissionId).populate('submittedBy'); 
-  
-  
+
+         console.log(submission)
         if (!submission) {
             return res.status(404).json({ message: 'submission not found' });
         }
