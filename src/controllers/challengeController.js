@@ -137,16 +137,13 @@ exports.viewDetailschallenge = async (req, res) => {
 
 exports.ChallengesStatics = async (req, res) => {
   try {
-      // Fetch all challenges from the database
       const challenges = await Challenge.find();
 
-      // Calculate statistics
       const totalChallenges = challenges.length;
       const openChallenges = challenges.filter(challenge => challenge.status === 'open').length;
       const completedChallenges = challenges.filter(challenge => challenge.status === 'completed').length;
       const archivedChallenges = challenges.filter(challenge => challenge.status === 'archived').length;
 
-      // Return the statistics along with the challenges
       return res.status(200).json({
           challenges,
           statistics: {

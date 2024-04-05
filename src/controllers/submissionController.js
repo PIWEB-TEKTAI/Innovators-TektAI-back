@@ -44,4 +44,23 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
     }
   };
 
+  exports.viewDetailssubmission = async (req, res) => {
+    const submissionId = req.params.id;
+         
+  
+    try {
+        const submission = await Submission.findById(submissionId).populate('submittedBy'); 
+  
+  
+        if (!submission) {
+            return res.status(404).json({ message: 'submission not found' });
+        }
+  
+        return res.status(200).json(submission);
+    } catch (error) {
+        console.error('Error retrieving submission details:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
 
