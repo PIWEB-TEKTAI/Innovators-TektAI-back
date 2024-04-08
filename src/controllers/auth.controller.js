@@ -247,3 +247,91 @@ exports.signout = (req, res) => {
       res.status(500).send({ message: 'Internal Server Error' });
     }
   };
+
+
+  exports.git = async (req, res) => {
+    try {
+      const CLIENT_ID = "bca5ee03a4266ebe1684";
+      const CLIENT_SECRET = "e8325fb8a3f07d0a21597c5e00e2fa14c3d4558d";
+      const params =
+        "?client_id=" +
+        CLIENT_ID +
+        "&client_secret=" +
+        CLIENT_SECRET +
+        "&code=" +
+        req.query.code;
+  
+      const response = await fetch("https://github.com/login/oauth/access_token" + params, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to retrieve access token from GitHub");
+      }
+  
+      const data = await response.json();
+  
+      // Assuming 'data' contains access token and other user information
+      const githubResponse = await fetch("https://api.github.com/user", {
+        method: "GET",
+        headers: {
+          Authorization: "token " + data.access_token,
+        },
+      });
+  
+      if (!githubResponse.ok) {
+        throw new Error("Failed to retrieve user data from GitHub");
+      }
+  
+      const githubUserData = await githubResponse.json();
+  
+      // Check if user with this email exists in the database
+      let user = await User.findOne({ email: githubUserData.email });
+  
+      // If user doesn't exist, create a new one
+      if (!user) {
+        const userData = {
+          FirstName: githubUserData.login,
+          LastName: githubUserData.login,
+          email: githubUserData.email,
+          role: "challenger",
+          isEmailVerified: true, // Assuming GitHub emails are always verified
+          isExternalUser: true,
+          state: "validated",
+          password: "", // You might want to handle this differently
+          isDemandingToSwitchAccount: false,
+          AlreadyCompany: false,
+        };
+  
+        user = new User(userData);
+        await user.save();
+        console.log("User created:", user);
+      }
+  
+      // Return user data or any other response as needed
+      res.json(user);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+  
+
+
+  exports.getUserData = async (req, res) => {
+    req.get("Authorization");
+    await fetch("https://api.github.com/user", {
+    method: "GET",
+    headers: {
+    Authorization: req.get('Authorization')
+    }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      res.json(data)
+    })
+  };
+    
