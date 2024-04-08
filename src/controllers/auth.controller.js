@@ -164,7 +164,7 @@ exports.signInWithGoogle = async (req, res) => {
           {
             algorithm: 'HS256',
             allowInsecureKeySizes: true,
-            expiresIn: 86400, // 24 hours
+            expiresIn: 259200, // 3 days
           }
         );
         console.log(token);
@@ -194,7 +194,7 @@ exports.signInWithGoogle = async (req, res) => {
         {
           algorithm: 'HS256',
           allowInsecureKeySizes: true,
-          expiresIn: 86400, // 24 hours
+          expiresIn: 259200, // 3 days
         }
       );
       res.cookie('token',token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });

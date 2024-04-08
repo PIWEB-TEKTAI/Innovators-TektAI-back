@@ -9,8 +9,13 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, config.secret);
-    req.userId = decoded.id; // Set userId based on the decoded token
-    req.user = decoded; // Attach user information to the request
+    req.userId = decoded.id; 
+    req.user = decoded; 
+    console.log("date"+new Date()+"exp"+new Date(decoded.exp*1000))
+    if ( new Date()>new Date(decoded.exp*1000)) {
+      res.clearCookie('token');
+      return res.status(401).json({ message: 'Token expired' });
+    }  
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Unauthorized2' });
