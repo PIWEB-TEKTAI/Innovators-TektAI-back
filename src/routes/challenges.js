@@ -110,11 +110,12 @@ router.post('/AddChallenger', async function (req, res) {
   });
 
   
-  router.put('/:id/updateStatus', async (req, res) => {
+  router.put('/:id/updateStatus', authMiddleware, async (req, res) => {
     try {
       const id = req.params.id;
       const newStatus = req.body.status;
-  
+      console.log("userid" + id+"completed")
+
       // Utilisation de findOneAndUpdate pour trouver et mettre à jour le défi
       const challenge = await Challenge.findOneAndUpdate(
         { _id: id }, // Utilisation de _id au lieu de id pour rechercher par ID
@@ -221,7 +222,7 @@ router.post('/AddChallenger', async function (req, res) {
   router.put('/completed/:id/update-status', authMiddleware, async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
-  console.log("userid" + userId)
+  console.log("userid" + userId+"completed")
     try {
       const challenge = await Challenge.findById(id);
   

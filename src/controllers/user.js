@@ -1,10 +1,8 @@
 const User = require('../models/User')
 const Notification = require('../models/notifications');
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError, UnauthenticatedError } = require('../errors')
 const sendEmail = require('../utils/sendEmail')
 const Token = require('../models/token')
-const crypto = require('crypto')
 const resetemail = require('../utils/resetemail');
 const contactemail = require('../utils/contactemail');
 
@@ -181,7 +179,7 @@ const resetPassword = async (req, res) => {
       return await bcrypt.compare(password, prevPassword);
     }));
 
-    if (passwordMatched.some(match => match)) {
+    if ((passwordMatched.some(match => match)) || bcrypt.compareSync(password, user.password)) {
       return res.status(400).json({ Status: "Cannot reuse previous password, Please try another one" });
     }
 

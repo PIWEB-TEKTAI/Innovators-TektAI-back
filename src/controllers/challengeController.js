@@ -62,7 +62,7 @@ exports.editChallenge = async (req, res) => {
 
 
 
-exports.getChallenge = async (req, res) => {
+exports.getChallengeById = async (req, res) => {
     try {
       const challengeId = req.params.id; 
       const challenge = await Challenge.findById(challengeId);

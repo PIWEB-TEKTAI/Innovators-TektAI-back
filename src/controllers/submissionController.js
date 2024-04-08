@@ -3,7 +3,6 @@ const Submission = require('../models/submission')
 
 exports.addSubmission = async (req, res) => {
     try {
-        console.log( req.files.file[0])
         challengeId = req.params.challengeId;
         const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${ req.files.file[0].filename}`
         const newSubmission = new Submission({
@@ -27,6 +26,56 @@ exports.addSubmission = async (req, res) => {
     }
 
 };
+
+exports.getSubmissionById = async (req, res) => {
+  try {
+    const submissionId = req.params.id; 
+    const submission = await Submission.findById(submissionId);
+    if (!submission) {
+        return res.status(404).send({ message: 'Submittion not found' });
+     }
+  
+      return res.status(200).send({ submission });
+    } catch (error) {
+      console.error('Error finding submission by ID:', error);
+      return res.status(500).send({ message: 'Internal Server Error' });
+    }
+};
+
+
+exports.editSubmission = async (req, res) => {
+  try {
+
+      const submissionId = req.params.id;
+
+      const existingSubmission = await Submission.findById(submissionId);
+      if (!existingSubmission) {
+          return res.status(404).json({ success: false, message: 'Submission not found' });
+      }
+
+      existingSubmission.description = req.body.description;
+      existingSubmission.title = req.body.title;
+
+      if (req.files && req.files.file && req.files.file[0].filename) {
+          const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.files.file[0].filename}`;
+          existingSubmission.files = [{
+              name: req.files.file[0].filename,
+              url: fileUrl
+          }];
+      }
+
+      await existingSubmission.save();
+
+      res.status(200).json({ success: true, message: 'Submission updated successfully' });
+  } catch (error) {
+      res.status(500).json({ success: false, message: 'Failed to update submission', error: error.message });
+  }
+};
+
+
+
+
+
 exports.getSubmissionsByChallengeId = async (req, res) => {
     const { challengeId } = req.params;
   
@@ -45,3 +94,20 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
   };
 
 
+exports.DeleteSubmission = async (req,res) =>{
+
+    const id = req.params.id
+  
+    try {
+        const submission = await Submission.deleteOne({_id:id});
+  
+        if (!submission) {
+          return res.status(404).json({ message: 'Submission not found'});
+        }
+        res.status(201).json({ msg: "Submission deleted successfully" });
+      } catch (error) {
+        console.error('Error deleting Submission :', error);
+        res.status(500).json({ msg: "An error occurred while deleting Submission" });
+      }
+  }
+  
