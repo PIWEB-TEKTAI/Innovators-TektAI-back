@@ -1,5 +1,7 @@
 // Import Submission model
-const Submission = require('../models/submission')
+const Submission = require('../models/submission');
+const Challenge = require('../models/challenge');
+const submission = require('../models/submission');
 
 exports.addSubmission = async (req, res) => {
     try {
@@ -73,7 +75,25 @@ exports.editSubmission = async (req, res) => {
 };
 
 
+exports.getListChallengeChallenger = async (req,res) =>{
+  const userId = req.user.id; 
+  console.log(userId);
 
+  try {
+    const submissions = await Submission.find({ submittedBy: userId }).populate('challengeId');
+
+    const challengeIds = submissions.map(submission => submission.challengeId);
+
+    const challenges = await Challenge.find({ _id: { $in: challengeIds } });
+
+    console.log(challenges);
+    res.status(200).json(challenges);
+   
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+}
 
 
 exports.getSubmissionsByChallengeId = async (req, res) => {
