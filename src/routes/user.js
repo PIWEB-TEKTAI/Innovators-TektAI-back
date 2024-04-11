@@ -26,5 +26,6 @@ router.post('/contact', user.sendContactEmail);
 
 router.put('/switchAccount',authMiddleware, controller.switchAccount);
 router.put('/directlySwitchAccount',authMiddleware, controller.directlySwitchAccount);
+router.get('/getById/:userId', authMiddleware,controller.getUserById);
 
 module.exports = router

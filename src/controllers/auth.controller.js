@@ -112,7 +112,9 @@ const lockoutDurationInMinutes = 60;
       email: user.email,
       role: user.role,
       token: token,
-      // Include a flag indicating whether the account was reactivated
+      FirstName:user.FirstName,
+      imageUrl:user.imageUrl,
+      LastName:user.LastName,
       wasReactivated: !user.isDeactivated && user.wasDeactivated,
     });
 
@@ -164,13 +166,17 @@ exports.signInWithGoogle = async (req, res) => {
           {
             algorithm: 'HS256',
             allowInsecureKeySizes: true,
-            expiresIn: 86400, // 24 hours
+            expiresIn: 259200, // 3 days
           }
         );
         console.log(token);
         res.cookie('token',token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
         
-        return res.status(201).json({ role: createdUser.role, token, message: 'Google sign-in successful' });
+        return res.status(201).json({ role: createdUser.role,
+           FirstName:createdUser.FirstName,
+           LastName:createdUser.LastName,
+            imageUrl:createdUser.imageUrl,
+           token, message: 'Google sign-in successful' });
       }
     } else if (user && user.isExternalUser == false) {
       return res.status(401).json({ message: "An account with the email address you're trying to use already exists. If you've previously signed up using a password, you can sign in directly. If you forgot your password, you can recover it. Alternatively, if you've signed up with Google using this email, please use the Google sign-in option." });
@@ -194,12 +200,16 @@ exports.signInWithGoogle = async (req, res) => {
         {
           algorithm: 'HS256',
           allowInsecureKeySizes: true,
-          expiresIn: 86400, // 24 hours
+          expiresIn: 259200, // 3 days
         }
       );
       res.cookie('token',token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
       
-      return res.status(200).json({ role: user.role ,token, message: 'Google sign-in successful' });
+      return res.status(200).json({ role: user.role ,
+        FirstName:user.FirstName,
+        LastName:user.LastName,
+         imageUrl:user.imageUrl,
+        token, message: 'Google sign-in successful' });
     }
   } catch (err) {
     console.error(err);
