@@ -30,6 +30,18 @@ const ChallengeSchema = new mongoose.Schema({
 
   },
   image:String,
+  participations: {
+    soloParticipants: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    soloParticipationRequests: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }]
+  } // Closing brace moved here
 });
+
+
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);

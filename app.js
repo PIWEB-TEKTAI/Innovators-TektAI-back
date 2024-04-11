@@ -19,6 +19,7 @@ const adminlanding = require('./src/routes/adminlanding.route');
 const notifRouter = require('./src/routes/notifications');
 const challengeRoute = require('./src/routes/challengeRoute')
 const submissionRoute = require('./src/routes/submissionRoute')
+const teamRoutes = require('./src/routes/teamRoute');
 
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
@@ -28,7 +29,6 @@ dotenv.config();
 
 const app = express();
 const server = require('http').createServer(app);
-
 
 
 
@@ -91,6 +91,7 @@ app.use("/notif" , notifRouter);
 app.use("/challenge",authMiddleware, challengeRoute);
 app.use("/challenges",Challenge);
 app.use("/submissions",authMiddleware,submissionRoute);
+app.use('/teams', teamRoutes);
 
 
 

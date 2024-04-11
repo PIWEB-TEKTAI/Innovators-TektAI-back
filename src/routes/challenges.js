@@ -18,6 +18,25 @@ router.get('/AllChallenge', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
       }
 });
+
+router.get("/AllChallengeLanding", async (req, res) => {
+  try {
+  
+    const challenge = await Challenge.find({
+    status: 'open'
+    }).sort({startDate:-1}).limit(3);
+
+    if (!challenge || challenge.length === 0) {
+      return res.status(404).json({ message: "Aucun challenge trouver " });
+    }
+
+    res.status(200).json(challenge);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
 router.get('/OpenedChallenge', async (req, res) => {
     try {
         const challenge = await Challenge.find({  status:'open'});
