@@ -75,7 +75,7 @@ exports.editSubmission = async (req, res) => {
 };
 
 
-exports.getListChallengeChallenger = async (req,res) =>{
+/*exports.getListChallengeChallenger = async (req,res) =>{
   const userId = req.user.id; 
   console.log(userId);
 
@@ -86,6 +86,24 @@ exports.getListChallengeChallenger = async (req,res) =>{
 
     const challenges = await Challenge.find({ _id: { $in: challengeIds } });
 
+    res.status(200).json(challenges);
+   
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+}
+*/
+
+exports.getListChallengeChallenger = async (req,res) =>{
+  const userId = req.user.id; 
+  console.log(userId);
+
+  try {
+    const challenges = await Challenge.find({ "participations.soloParticipants": { $in: [userId] } });
+    if (!challenges || challenges.length === 0) {
+      return res.status(404).json({ message: 'No challenges found for this user ID' });
+    }
     console.log(challenges);
     res.status(200).json(challenges);
    

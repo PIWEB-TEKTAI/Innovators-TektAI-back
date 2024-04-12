@@ -1,4 +1,8 @@
+const User = require('../models/User');
 const Challenge = require('../models/challenge');
+const { getSocketInstance } = require('../../socket');
+const Notification = require('../models/notifications');
+
 
 exports.editChallenge = async (req, res) => {
     try {
@@ -166,6 +170,7 @@ exports.addSoloParticipationRequest = async (req, res) => {
   const { userId } = req.body;
 console.log(userId)
   try {
+    const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
 
     if (!challenge) {
@@ -180,8 +185,16 @@ console.log(userId)
       return res.status(400).json({ message: 'you have  already requested to participate' });
     }
 
+    const userChallenger = await User.findById(userId);
     challenge.participations.soloParticipationRequests.push( userId );
     await challenge.save();
+    await io.emit("newParticipationRequest", { firstname:userChallenger.FirstName , lastname:userChallenger.LastName ,idCompany:challenge.createdBy,content:"has sent a participation request"}); 
+    const notifications = await Notification.create({
+        title:"Participation Request",
+        content:"has sent a participation request",
+        recipientUserId:challenge.createdBy,
+        isAdminNotification:false
+    })
 
     res.status(200).json({ message: 'Participation request added successfully' });
   } catch (error) {
@@ -231,6 +244,34 @@ exports.acceptParticipation = async (req, res) => {
     res.status(200).json({ message: 'Participation request accepted successfully' });
   } catch (error) {
     console.error('Error accepting participation request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+exports.declineParticipation = async (req, res) => {
+  const { challengeId, userId } = req.params;
+
+  try {
+    const challenge = await Challenge.findById(challengeId);
+
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge not found' });
+    }
+
+    // Check if the user is in the participation requests
+    const index = challenge.participations.soloParticipationRequests.findIndex(request => request.toString() === userId);
+    if (index === -1) {
+      return res.status(404).json({ message: 'User not found in participation requests' });
+    }
+
+    challenge.participations.soloParticipationRequests.splice(index, 1)[0];
+
+    await challenge.save();
+
+    res.status(200).json({ message: 'Participation request declined successfully' });
+  } catch (error) {
+    console.error('Error declining participation request:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -13,5 +13,6 @@ router.get('/:id', challengeController.viewDetailschallenge);
 router.post('/:challengeId/addSoloParticipationRequest',authMiddleware,challengeController.addSoloParticipationRequest);
 router.get('/:challengeId/participations', challengeController.getAllParticipations);
 router.put('/:challengeId/accept-participation/:userId', authMiddleware,challengeController.acceptParticipation);
+router.put('/:challengeId/decline/participation/:userId', authMiddleware,challengeController.declineParticipation);
 
 module.exports = router
