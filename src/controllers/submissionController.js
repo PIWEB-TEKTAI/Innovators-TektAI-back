@@ -1,4 +1,5 @@
 // Import Submission model
+const submission = require('../models/submission');
 const Submission = require('../models/submission')
 
 exports.addSubmission = async (req, res) => {
@@ -32,7 +33,6 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
   
     try {
       const submissions = await Submission.find({ challengeId });
-  
       if (!submissions || submissions.length === 0) {
         return res.status(404).json({ message: 'No submissions found for this challenge ID' });
       }
@@ -43,24 +43,4 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
-
-  exports.viewDetailssubmission = async (req, res) => {
-    const submissionId = req.params.id;
-         
-  
-    try {
-        const submission = await Submission.findById(submissionId).populate('submittedBy'); 
-
-         console.log(submission)
-        if (!submission) {
-            return res.status(404).json({ message: 'submission not found' });
-        }
-  
-        return res.status(200).json(submission);
-    } catch (error) {
-        console.error('Error retrieving submission details:', error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-  
 
