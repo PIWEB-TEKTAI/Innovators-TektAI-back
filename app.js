@@ -87,7 +87,7 @@ app.use("/Admin", admin);
 app.use("/admin2", authMiddleware,adminRouter);
 app.use("/terms" ,termsRouter );
 app.use("/adminlan", adminlanding);
-app.use("/notif" , notifRouter);
+app.use("/notif" ,authMiddleware, notifRouter);
 app.use("/challenge", challengeRoute);
 app.use("/challenges",Challenge);
 app.use("/submissions",authMiddleware,submissionRoute);

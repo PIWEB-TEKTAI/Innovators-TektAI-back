@@ -4,6 +4,7 @@ const router = express.Router();
 
 
 router.get('/list', notif.getAllNotificationsAdmin);
+router.get('/list/user', notif.getAllNotificationsUser);
 
 
 

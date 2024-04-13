@@ -56,7 +56,7 @@ const register = async (req,res) =>{
             const notifications = await Notification.create({
                 title:"User Registration",
                 content:"has create an account",
-                createdAccountUserId:user._id,
+                UserConcernedId:user._id,
                 isAdminNotification:true
             })
             res.status(StatusCodes.CREATED).json({ msg: "Your registration is successful, Please check your email to verify your email" , data:{ id:user._id } })

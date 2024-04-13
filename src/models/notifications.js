@@ -14,7 +14,7 @@ const NotificationsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' 
   },
-  createdAccountUserId: {
+  UserConcernedId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' 
   },

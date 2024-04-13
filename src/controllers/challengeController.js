@@ -188,11 +188,12 @@ console.log(userId)
     const userChallenger = await User.findById(userId);
     challenge.participations.soloParticipationRequests.push( userId );
     await challenge.save();
-    await io.emit("newParticipationRequest", { firstname:userChallenger.FirstName , lastname:userChallenger.LastName ,idCompany:challenge.createdBy,content:"has sent a participation request"}); 
+    await io.emit("newParticipationRequest", { firstname:userChallenger.FirstName , lastname:userChallenger.LastName ,idUser:challenge.createdBy,content:"has sent a participation request"}); 
     const notifications = await Notification.create({
         title:"Participation Request",
         content:"has sent a participation request",
         recipientUserId:challenge.createdBy,
+        UserConcernedId:userId,
         isAdminNotification:false
     })
 
@@ -223,6 +224,7 @@ exports.acceptParticipation = async (req, res) => {
   const { challengeId, userId } = req.params;
 
   try {
+    const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
 
     if (!challenge) {
@@ -235,9 +237,20 @@ exports.acceptParticipation = async (req, res) => {
       return res.status(404).json({ message: 'User not found in participation requests' });
     }
 
+    const userCompany = await User.findById(challenge.createdBy);
+
     // Move user from participation requests to participants
     const user = challenge.participations.soloParticipationRequests.splice(index, 1)[0];
     challenge.participations.soloParticipants.push(user);
+
+    await io.emit("AcceptParticipationRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:user,content:"has accept your participation request"}); 
+    const notifications = await Notification.create({
+        title:"Accept Participation Request",
+        content:"has accept your participation request",
+        recipientUserId:user,
+        UserConcernedId:challenge.createdBy,
+        isAdminNotification:false
+    })
 
     await challenge.save();
 
