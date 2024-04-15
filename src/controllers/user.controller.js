@@ -163,3 +163,11 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.getAllChallengers = async (req, res) => {
+  try {
+    const challengers = await User.find({ role: 'challenger' });
+    res.json(challengers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

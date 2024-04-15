@@ -2,24 +2,32 @@ const Team = require('../models/team');
 
 exports.createTeam = async (req, res) => {
     try {
-      const { name } = req.body;
+      const { name, selectedChallengers } = req.body;
       const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
   
       const existingTeam = await Team.findOne({ leader });
       if (existingTeam) {
-        return res.status(400).json({ message: 'You are already a leader of another team' });
+        return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
       }
-  
-      const team = new Team({ name, leader });
+   
+      const team = new Team({ name, invitations: selectedChallengers,leader });
       await team.save();
       res.status(201).json({ message: 'Team created successfully', team });
     } catch (error) {
       console.error('Error creating team:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error' });
     }
-  };
+};
   
-
+exports.getAllTeams = async (req, res) => {
+  try {
+    const teams = await Team.find();
+    res.json(teams);
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 exports.joinTeamRequest = async (req, res) => {
   try {
     const { teamId } = req.params;
@@ -35,7 +43,6 @@ exports.joinTeamRequest = async (req, res) => {
     await team.save();
     res.status(200).json({ message: 'Request sent successfully' });
   } catch (error) {
-    console.error('Error sending join team request:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

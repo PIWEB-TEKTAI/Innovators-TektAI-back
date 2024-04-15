@@ -13,6 +13,7 @@ router.post('/register', user.register);
 router.post('/EmailVerification/:id',user.emailVerification);
 router.post('/resend/Email/:id',user.resendEmailVerification);
 router.post('/resendEmail',user.resendEmailVerificationAfterSignIn);
+router.get('/challengers', controller.getAllChallengers);
 
 router.get('/profile', authMiddleware,controller.profile);
 router.post('/imageUpload', authMiddleware,multer, controller.imageUpload)
