@@ -103,6 +103,8 @@ const userSchema = new mongoose.Schema({
     },
 
     previousPasswords: [{ type: String }],
+    
+    favoris: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' }], // Ajout du champ "favoris"
 
 
   isDeactivated: {

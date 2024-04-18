@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 const User = require('../models/User'); // Import your User model
 var bcrypt = require("bcryptjs");
+
+
+
+
 router.get('/All', async (req, res) => {
   try {
     const companies = await User.find({  state: { $ne: 'archive' } });
@@ -391,5 +395,72 @@ router.get('/challenges/:email', async (req, res) => {
   }
 });
 
+router.post('/:userId/favoriteChallenge/:challengeId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const challengeId = req.params.challengeId;
+
+    // Recherchez l'utilisateur avec l'ID spécifié
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Ajouter le challengeId à la liste des favoris de l'utilisateur s'il n'est pas déjà présent
+    if (!user.favoris.includes(challengeId)) {
+      user.favoris.push(challengeId);
+      await user.save();
+    }
+
+    res.status(200).json({ success: true, message: 'Challenge ajouté aux favoris avec succès' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Supprimer un challenge des favoris de l'utilisateur
+router.delete('/:userId/favoriteChallenge/:challengeId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const challengeId = req.params.challengeId;
+
+    // Recherchez l'utilisateur avec l'ID spécifié
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Supprimer le challengeId de la liste des favoris de l'utilisateur s'il est présent
+    user.favoris = user.favoris.filter(favorite => favorite.toString() !== challengeId);
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Challenge supprimé des favoris avec succès' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Afficher tous les challenges favoris de l'utilisateur
+router.get('/:userId/favoriteChallenges', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Recherchez l'utilisateur avec l'ID spécifié, en population la liste des favoris
+    const user = await User.findById(userId).populate('favoris');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.status(200).json(user.favoris);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
 
 module.exports = router;
