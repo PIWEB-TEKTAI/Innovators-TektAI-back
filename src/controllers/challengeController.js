@@ -143,11 +143,16 @@ exports.viewDetailschallenge = async (req, res) => {
 exports.ChallengesStatics = async (req, res) => {
   try {
       const challenges = await Challenge.find();
+      const users = await User.find();
 
       const totalChallenges = challenges.length;
       const openChallenges = challenges.filter(challenge => challenge.status === 'open').length;
       const completedChallenges = challenges.filter(challenge => challenge.status === 'completed').length;
       const archivedChallenges = challenges.filter(challenge => challenge.status === 'archived').length;
+      const totalUsers= users.length;
+      const nbchallengers = users.filter(user => user.role === 'challenger').length;
+      const nbcompanies = users.filter(user => user.role === 'company').length;
+
 
       return res.status(200).json({
           challenges,
@@ -155,7 +160,11 @@ exports.ChallengesStatics = async (req, res) => {
               totalChallenges,
               openChallenges,
               completedChallenges,
-              archivedChallenges
+              archivedChallenges,
+              totalUsers,
+              nbchallengers,
+              nbcompanies
+
           }
       });
   } catch (error) {
