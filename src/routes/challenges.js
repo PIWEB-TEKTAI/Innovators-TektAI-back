@@ -85,11 +85,12 @@ router.get('/archivedChallenge', async (req, res) => {
 
 router.get('/challenge/:id', async (req, res) => {
   try {
-    const challenge = await Challenge.find({ status: { $ne: "archived" } });
+    const id = req.params.id; // Utiliser req.params.id pour récupérer l'ID du challenge
+    const challenge = await Challenge.findById(id);
     console.log(challenge);
 
-    if (!challenge || challenge.length === 0) {
-      return res.status(404).json({ message: "Aucun challenge trouver " });
+    if (!challenge) {
+      return res.status(404).json({ message: "Aucun challenge trouvé" }); // Correction de la faute de frappe
     }
 
     res.status(200).json(challenge);
@@ -98,6 +99,7 @@ router.get('/challenge/:id', async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
 
 router.get("/AllChallengeLanding", async (req, res) => {
   try {
