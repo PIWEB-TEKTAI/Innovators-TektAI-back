@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Challenge = require('../models/challenge');
 const { getSocketInstance } = require('../../socket');
 const Notification = require('../models/notifications');
+const Team = require('../models/team');
 
 
 exports.editChallenge = async (req, res) => {
@@ -125,7 +126,19 @@ exports.viewDetailschallenge = async (req, res) => {
        
 
   try {
-      const challenge = await Challenge.findById(challengeId).populate('createdBy'); 
+      const challenge = await Challenge.findById(challengeId).populate('createdBy')
+      .populate({
+        path: 'participations.TeamParticipationRequests',
+        populate: {
+          path: 'members leader', 
+        },
+      })
+      .populate({
+        path: 'participations.TeamParticipants',
+        populate: {
+          path: 'members leader', 
+        },
+      });; 
 
 
       if (!challenge) {
@@ -184,7 +197,16 @@ console.log(userId)
     if (challenge.participations.soloParticipationRequests.some(request => request.toString() === userId)) {
       return res.status(400).json({ message: 'you have  already requested to participate' });
     }
+    /*const teams = await Team.find({ $or: [{ leader: userId },
+      { members: { $in: [userId] } } ] });
+    const teamIds = teams.map(team => team._id);
 
+    if (challenge.participations.TeamParticipationRequests.some(request => teamIds.includes(request.toString()))) {
+      return res.status(400).json({ message: 'You are already part of a team that sent a participation request' });
+    }
+    if (challenge.participations.TeamParticipants.some(request => teamIds.includes(request.toString()))) {
+      return res.status(400).json({ message: 'You are already part of a team that has participated' });
+    }*/
     const userChallenger = await User.findById(userId);
     challenge.participations.soloParticipationRequests.push( userId );
     await challenge.save();
@@ -196,6 +218,33 @@ console.log(userId)
         UserConcernedId:userId,
         isAdminNotification:false
     })
+
+    res.status(200).json({ message: 'Participation request added successfully' });
+  } catch (error) {
+    console.error('Error adding participation request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+exports.addTeamParticipationRequest = async (req, res) => {
+  const { challengeId ,teamId} = req.params;
+  try {
+    const io = getSocketInstance();
+    const challenge = await Challenge.findById(challengeId);
+
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge not found' });
+    }
+
+    if (challenge.participations.TeamParticipants.includes(teamId)) {
+      return res.status(400).json({ message: 'you are  already a participant' });
+    }
+
+    if (challenge.participations.TeamParticipationRequests.some(request => request.toString() === teamId)) {
+      return res.status(400).json({ message: 'you have  already requested to participate' });
+    }
+
+    challenge.participations.TeamParticipationRequests.push( teamId );
+    await challenge.save();
 
     res.status(200).json({ message: 'Participation request added successfully' });
   } catch (error) {
@@ -222,24 +271,23 @@ exports.getAllParticipations = async (req, res) => {
 };
 exports.acceptParticipation = async (req, res) => {
   const { challengeId, userId } = req.params;
-
+  const type  = req.body.type;
   try {
     const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
+    const userCompany = await User.findById(challenge.createdBy);
 
     if (!challenge) {
       return res.status(404).json({ message: 'Challenge not found' });
     }
 
     // Check if the user is in the participation requests
-    const index = challenge.participations.soloParticipationRequests.findIndex(request => request.toString() === userId);
-    if (index === -1) {
-      return res.status(404).json({ message: 'User not found in participation requests' });
-    }
-
-    const userCompany = await User.findById(challenge.createdBy);
-
-    // Move user from participation requests to participants
+    if(type == "Request"){
+      const index = challenge.participations.soloParticipationRequests.findIndex(request => request.toString() === userId);
+      if (index === -1) {
+        return res.status(404).json({ message: 'User not found in participation requests' });
+      }
+          // Move user from participation requests to participants
     const user = challenge.participations.soloParticipationRequests.splice(index, 1)[0];
     challenge.participations.soloParticipants.push(user);
 
@@ -255,6 +303,33 @@ exports.acceptParticipation = async (req, res) => {
     await challenge.save();
 
     res.status(200).json({ message: 'Participation request accepted successfully' });
+    }else if(type == "TeamRequest"){
+      const index = challenge.participations.TeamParticipationRequests.findIndex(request => request.toString() === userId);
+      if (index === -1) {
+        return res.status(404).json({ message: 'Team not found in participation requests' });
+      }
+          // Move user from participation requests to participants
+    const teamId = challenge.participations.TeamParticipationRequests.splice(index, 1)[0];
+      const team = await Team.findById(userId);
+    challenge.participations.TeamParticipants.push(team);
+
+    await io.emit("AcceptParticipationRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:"has accept your participation request"}); 
+    const notifications = await Notification.create({
+        title:"Accept Participation Request",
+        content:"has accept your participation request",
+        recipientUserId:team.leader,
+        UserConcernedId:challenge.createdBy,
+        isAdminNotification:false
+    })
+
+    await challenge.save();
+
+    res.status(200).json({ message: 'Participation request accepted successfully' });
+    }
+   
+
+
+
   } catch (error) {
     console.error('Error accepting participation request:', error);
     res.status(500).json({ message: 'Internal server error' });

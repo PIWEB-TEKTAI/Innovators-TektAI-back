@@ -14,5 +14,6 @@ router.post('/:challengeId/addSoloParticipationRequest',authMiddleware,challenge
 router.get('/:challengeId/participations', challengeController.getAllParticipations);
 router.put('/:challengeId/accept-participation/:userId', authMiddleware,challengeController.acceptParticipation);
 router.put('/:challengeId/decline/participation/:userId', authMiddleware,challengeController.declineParticipation);
+router.post('/:challengeId/addTeamParticipationRequest/:teamId',authMiddleware,challengeController.addTeamParticipationRequest);
 
 module.exports = router

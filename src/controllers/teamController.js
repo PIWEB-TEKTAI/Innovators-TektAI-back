@@ -28,6 +28,37 @@ exports.getAllTeams = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.getMyTeams = async (req, res) => {
+  try {
+    
+    const userId = req.userId; 
+    console.log(userId);
+    const teams = await Team.find({
+      $or: [
+        { leader: userId }, 
+        { members: { $in: [userId] } } 
+      ]
+    });
+    res.json(teams);
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+exports.getTeamById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const team = await Team.findById(id);
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+    res.json(team);
+  } catch (error) {
+    console.error('Error fetching team by ID:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 exports.joinTeamRequest = async (req, res) => {
   try {
     const { teamId } = req.params;

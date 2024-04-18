@@ -11,5 +11,7 @@ router.put('/:teamId/accept/:userId', teamController.acceptJoinRequest);
 
 router.put('/:teamId/decline/:userId', teamController.declineJoinRequest);
 router.get('/all', teamController.getAllTeams);
+router.get('/myTeams',authMiddleware, teamController.getMyTeams);
+router.get('/:id', teamController.getTeamById);
 
 module.exports = router;
