@@ -11,5 +11,6 @@ router.put('/:teamId/accept/:userId', teamController.acceptJoinRequest);
 
 router.put('/:teamId/decline/:userId', teamController.declineJoinRequest);
 router.get('/all', teamController.getAllTeams);
+router.get('/front/all', teamController.getAllTeamsPulic);
 
 module.exports = router;

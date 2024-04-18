@@ -79,7 +79,11 @@ const userSchema = new mongoose.Schema({
       },
       professionnalFields:{
         type:Array,
-      }
+      },
+      /*autoAcceptRequests: {
+        type: Boolean,
+        default: false
+      }*/
     },
 
     permissions: {

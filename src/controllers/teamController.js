@@ -21,13 +21,29 @@ exports.createTeam = async (req, res) => {
   
 exports.getAllTeams = async (req, res) => {
   try {
-    const teams = await Team.find();
+    const teams = await Team.find().populate('members').populate('invitations');
+
     res.json(teams);
   } catch (error) {
     console.error('Error fetching teams:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
+
+exports.getAllTeamsPulic = async (req, res) => {
+  try {
+    const teams = await Team.find({private:false}).populate('members').populate('invitations');
+    
+    res.json(teams);
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 exports.joinTeamRequest = async (req, res) => {
   try {
     const { teamId } = req.params;

@@ -21,7 +21,13 @@ const teamSchema = new mongoose.Schema({
   requests: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+
+  private: {
+    type: Boolean,
+    default: false 
+  },
+  
 });
 
 const Team = mongoose.model('Team', teamSchema);

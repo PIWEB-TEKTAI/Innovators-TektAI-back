@@ -171,3 +171,63 @@ exports.getAllChallengers = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getUserPreferences = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    // Retrieve the user document from the database, populating the 'company' field
+    const user = await User.findById(userId).populate('company');
+
+    // Ensure that the user document exists and contains the 'company' field
+    if (!user || !user.company) {
+      return res.status(404).json({ message: 'User or company not found' });
+    }
+
+    // Respond with the user document and relevant company information
+    res.status(200).json({
+      message: 'User preferences retrieved successfully',
+      user: {
+        _id: user._id,
+        company: user.company
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching user preferences:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+exports.updateCompanyPreferences = async (req, res) => {
+  const userId = req.user.id;
+  const { autoAcceptRequests } = req.body;
+
+  try {
+    // Retrieve the user document from the database, populating the 'company' field
+    const user = await User.findById(userId).populate('company');
+
+    // Ensure that the user document exists and contains the 'company' field
+    if (!user || !user.company) {
+      return res.status(404).json({ message: 'User or company not found' });
+    }
+
+    // Update the 'autoAcceptRequests' property of the 'company' object
+    user.company.autoAcceptRequests = autoAcceptRequests;
+
+    // Save the updated user document
+    const updatedUser = await user.save();
+
+    // Respond with the updated user document and relevant company information
+    res.status(200).json({
+      message: 'Company preferences updated successfully',
+      user: {
+        _id: updatedUser._id,
+        company: updatedUser.company
+      }
+    });
+  } catch (error) {
+    console.error('Error updating company preferences:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
