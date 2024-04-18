@@ -108,6 +108,7 @@ const lockoutDurationInMinutes = 60;
     user.save();
     res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     res.status(200).send({
+      _id:user._id,
       id: user._id,
       email: user.email,
       role: user.role,
@@ -116,6 +117,7 @@ const lockoutDurationInMinutes = 60;
       imageUrl:user.imageUrl,
       LastName:user.LastName,
       wasReactivated: !user.isDeactivated && user.wasDeactivated,
+      AlreadyCompany:user.AlreadyCompany
     });
 
 
@@ -205,11 +207,16 @@ exports.signInWithGoogle = async (req, res) => {
       );
       res.cookie('token',token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
       
-      return res.status(200).json({ role: user.role ,
+
+      return res.status(200).json({ 
+        _id:user._id,
+        role: user.role ,
         FirstName:user.FirstName,
         LastName:user.LastName,
          imageUrl:user.imageUrl,
-        token, message: 'Google sign-in successful' });
+        token, message: 'Google sign-in successful',
+        AlreadyCompany:user.AlreadyCompany
+       });
     }
   } catch (err) {
     console.error(err);

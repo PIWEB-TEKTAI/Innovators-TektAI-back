@@ -5,6 +5,10 @@ const teamSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  imageUrl: { 
+    type: String,
+    default:"http://localhost:3000/images/transparent-management-icon-team-icon-5e143fb74b04b0.8063195515783853353073.jpg"
+  },
   leader: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

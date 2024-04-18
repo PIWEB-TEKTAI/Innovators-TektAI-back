@@ -20,4 +20,6 @@ router.post('/:discussionId/unlike', challengeController.unlikeDiscussion);
 router.post('/:discussionId/addReply', authMiddleware ,challengeController.addReplyToDiscussion);
 router.delete('/:discussionId/delete', authMiddleware, challengeController.deleteDiscussion);
 router.delete('/:discussionId/replies/:replyId/delete', authMiddleware, challengeController.deleteReply);
+router.post('/:challengeId/addTeamParticipationRequest/:teamId',authMiddleware,challengeController.addTeamParticipationRequest);
+
 module.exports = router
