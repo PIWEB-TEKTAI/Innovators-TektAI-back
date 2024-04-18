@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Challenge = require('../models/challenge');
 const { getSocketInstance } = require('../../socket');
 const Notification = require('../models/notifications');
+const Discussion = require('../models/discussion');
 
 
 exports.editChallenge = async (req, res) => {
@@ -141,16 +142,13 @@ exports.viewDetailschallenge = async (req, res) => {
 
 exports.ChallengesStatics = async (req, res) => {
   try {
-      // Fetch all challenges from the database
       const challenges = await Challenge.find();
 
-      // Calculate statistics
       const totalChallenges = challenges.length;
       const openChallenges = challenges.filter(challenge => challenge.status === 'open').length;
       const completedChallenges = challenges.filter(challenge => challenge.status === 'completed').length;
       const archivedChallenges = challenges.filter(challenge => challenge.status === 'archived').length;
 
-      // Return the statistics along with the challenges
       return res.status(200).json({
           challenges,
           statistics: {
@@ -286,5 +284,147 @@ exports.declineParticipation = async (req, res) => {
   } catch (error) {
     console.error('Error declining participation request:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.likeDiscussion = async (req, res) => {
+  try {
+    const discussionId = req.params.discussionId; // Use the correct parameter name here
+    const discussion = await Discussion.findById(discussionId);
+    if (!discussion) {
+      return res.status(404).json({ error: 'Discussion not found' });
+    }
+    discussion.likes += 1;
+    await discussion.save();
+    res.status(200).json({ discussion, message: 'Like count updated successfully' });
+  } catch (error) {
+    console.error('Error liking discussion:', error);
+    res.status(500).json({ error: 'Failed to like discussion' });
+  }
+};
+exports.unlikeDiscussion = async (req, res) => {
+  try {
+    const discussionId = req.params.discussionId; // Use the correct parameter name here
+    const discussion = await Discussion.findById(discussionId);
+    if (!discussion) {
+      return res.status(404).json({ error: 'Discussion not found' });
+    }
+    discussion.likes -= 1;
+    await discussion.save();
+    res.status(200).json({ discussion, message: 'Like count updated successfully' });
+  } catch (error) {
+    console.error('Error liking discussion:', error);
+    res.status(500).json({ error: 'Failed to like discussion' });
+  }
+};
+
+
+exports.addDiscussion = async (req, res) => {
+  try {
+      const challengeId = req.params.challengeId;
+      const newDiscussion = new Discussion({
+          challengeId,
+          sentBy:req.user.id,
+          sendingDate:new Date(),
+          content:req.body.content,
+          
+      });
+          
+      await newDiscussion.save();
+
+      res.status(201).json({ success: true, message: 'Discussion added successfully' });
+  } catch (error) {
+      res.status(500).json({ success: false, message: 'Failed to add Discussion', error: error.message });
+  }
+
+};
+exports.getDiscussionByChallengeId = async (req, res) => {
+  const { challengeId } = req.params;
+
+  try {
+    const discussions = await Discussion.find({ challengeId }).populate({
+      path: 'answers',
+      populate: { path: 'repliedBy' } // Populate the repliedBy field within answers
+    }).populate('sentBy');
+
+    if (!discussions || discussions.length === 0) {
+      return res.status(404).json({ message: 'No discussions found for this challenge ID' });
+    }
+
+    res.status(200).json(discussions);
+  } catch (error) {
+    console.error('Error retrieving discussions:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.addReplyToDiscussion = async (req, res) => {
+  try {
+    const discussionId = req.params.discussionId;
+    const { content } = req.body;
+
+    const discussion = await Discussion.findById(discussionId);
+    if (!discussion) {
+      return res.status(404).json({ error: 'Discussion not found' });
+    }
+
+    const newReply = {
+      content,
+      repliedBy: req.user.id,
+      replyDate: new Date()
+    };
+
+    discussion.answers.push(newReply);
+    await discussion.save();
+
+    res.status(201).json({ success: true, message: 'Reply added successfully' });
+  } catch (error) {
+    console.error('Error adding reply to discussion:', error);
+    res.status(500).json({ success: false, message: 'Failed to add reply to discussion', error: error.message });
+  }
+};
+
+
+exports.deleteDiscussion = async (req, res) => {
+  try {
+      const discussion = await Discussion.findByIdAndDelete(req.params.discussionId);
+      if (!discussion) {
+          return res.status(404).json({ message: "Discussion not found" });
+      }
+      return res.status(200).json({ message: "Discussion deleted successfully" });
+  } catch (error) {
+      console.error("Error deleting discussion:", error);
+      return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+exports.deleteReply = async (req, res) => {
+  try {
+      const { discussionId, replyId } = req.params;
+      const discussion = await Discussion.findById(discussionId);
+
+      // Check if the discussion exists
+      if (!discussion) {
+          return res.status(404).json({ message: "Discussion not found" });
+      }
+
+      // Find the index of the reply in the discussion's answers array
+      const replyIndex = discussion.answers.findIndex(reply => reply._id.toString() === replyId);
+
+      // Check if the reply exists
+      if (replyIndex === -1) {
+          return res.status(404).json({ message: "Reply not found" });
+      }
+
+      // Remove the reply from the answers array
+      discussion.answers.splice(replyIndex, 1);
+      await discussion.save();
+
+      return res.status(200).json({ message: "Reply deleted successfully" });
+  } catch (error) {
+      console.error("Error deleting reply:", error);
+      return res.status(500).json({ message: "Internal server error" });
   }
 };

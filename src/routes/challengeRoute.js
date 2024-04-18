@@ -4,7 +4,6 @@ const router = express.Router();
 const multer = require('../middlewares/multerConfig2')
 const authMiddleware = require('../middlewares/authMiddleware');
 
-
 router.put('/edit/:id',authMiddleware, multer,challengeController.editChallenge);
 router.get('/get/:id',authMiddleware,challengeController.getChallengeById);
 router.post('/add',authMiddleware, multer,challengeController.addChallenge);
@@ -14,5 +13,11 @@ router.post('/:challengeId/addSoloParticipationRequest',authMiddleware,challenge
 router.get('/:challengeId/participations', challengeController.getAllParticipations);
 router.put('/:challengeId/accept-participation/:userId', authMiddleware,challengeController.acceptParticipation);
 router.put('/:challengeId/decline/participation/:userId', authMiddleware,challengeController.declineParticipation);
-
+router.post('/:challengeId/addDiscussion', authMiddleware ,challengeController.addDiscussion);
+router.get('/:challengeId/discussions', challengeController.getDiscussionByChallengeId);
+router.post('/:discussionId/like' ,challengeController.likeDiscussion);
+router.post('/:discussionId/unlike', challengeController.unlikeDiscussion);
+router.post('/:discussionId/addReply', authMiddleware ,challengeController.addReplyToDiscussion);
+router.delete('/:discussionId/delete', authMiddleware, challengeController.deleteDiscussion);
+router.delete('/:discussionId/replies/:replyId/delete', authMiddleware, challengeController.deleteReply);
 module.exports = router

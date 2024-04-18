@@ -1,7 +1,6 @@
 // Import Submission model
 const Submission = require('../models/submission');
 const Challenge = require('../models/challenge');
-const submission = require('../models/submission');
 
 exports.addSubmission = async (req, res) => {
     try {
@@ -119,7 +118,6 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
   
     try {
       const submissions = await Submission.find({ challengeId });
-  
       if (!submissions || submissions.length === 0) {
         return res.status(404).json({ message: 'No submissions found for this challenge ID' });
       }
