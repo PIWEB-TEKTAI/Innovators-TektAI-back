@@ -49,7 +49,7 @@ exports.getTeamById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const team = await Team.findById(id);
+    const team = await Team.findById(id).populate('leader').populate('members');
     if (!team) {
       return res.status(404).json({ message: 'Team not found' });
     }
@@ -99,6 +99,55 @@ exports.acceptJoinRequest = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+  exports.acceptJoinInvitation = async (req, res) => {
+    try {
+      const teamId = req.params.teamId;
+      const userId = req.userId;
+  
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: 'Team not found' });
+      }
+      if (!team.invitations.includes(userId)) {
+        return res.status(400).json({ message: 'Invitation does not exist' });
+      }
+  
+      // Add user to team members
+      team.members.push(userId);
+      // Remove user from invitations
+      team.invitations = team.invitations.filter(invitation => invitation.toString() !== userId);
+      await team.save();
+  
+      res.status(200).json({ message: 'Invitation accepted successfully' });
+    } catch (error) {
+      console.error('Error accepting join team invitation:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
+  exports.declineJoinInvitation = async (req, res) => {
+    try {
+      const teamId = req.params.teamId;
+      const userId = req.userId;
+  
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: 'Team not found' });
+      }
+      if (!team.invitations.includes(userId)) {
+        return res.status(400).json({ message: 'Invitation does not exist' });
+      }
+  
+      // Remove user from invitations
+      team.invitations = team.invitations.filter(invitation => invitation.toString() !== userId);
+      await team.save();
+  
+      res.status(200).json({ message: 'Invitation declined successfully' });
+    } catch (error) {
+      console.error('Error declining join team invitation:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
   
   exports.declineJoinRequest = async (req, res) => {
     try {
@@ -116,6 +165,19 @@ exports.acceptJoinRequest = async (req, res) => {
       res.status(200).json({ message: 'Request declined successfully' });
     } catch (error) {
       console.error('Error declining join team request:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  exports.getInvitationsForChallenger = async (req, res) => {
+    const challengerId = req.userId;
+    
+  
+    try {
+      const teamsWithInvitations = await Team.find({ invitations: challengerId });
+  
+      res.json(teamsWithInvitations);
+    } catch (error) {
+      console.error('Error retrieving invitations:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   };
