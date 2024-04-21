@@ -25,11 +25,11 @@ exports.editChallenge = async (req, res) => {
             fileUrl = `${file.filename}`;
           }
         });
-        req.body.dataset.fileUrl = fileUrl;
+        req.body.fileUrl = fileUrl;
         req.body.image = imageUrl;
       });
     }else {
-      req.body.dataset.fileUrl = challenge.dataset.fileUrl;
+      req.body.fileUrl = challenge.fileUrl;
       req.body.image = challenge.image
     }
 
@@ -101,7 +101,8 @@ exports.addChallenge = async (req, res) => {
         });
       });
     }
-    req.body.dataset.fileUrl = fileUrl;
+    console.log("file" + fileUrl)
+    req.body.fileUrl = fileUrl;
     req.body.image = imageUrl;
     const challengeData = {
       ...req.body,
