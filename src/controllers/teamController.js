@@ -2,7 +2,7 @@ const Team = require('../models/team');
 
 exports.createTeam = async (req, res) => {
     try {
-      const { name, selectedChallengers } = req.body;
+      const { name, selectedChallengers,private } = req.body;
       const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
   
       const existingTeam = await Team.findOne({ leader });
@@ -10,7 +10,7 @@ exports.createTeam = async (req, res) => {
         return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
       }
    
-      const team = new Team({ name, invitations: selectedChallengers,leader });
+      const team = new Team({ name, invitations: selectedChallengers,leader,private:private });
       await team.save();
       res.status(201).json({ message: 'Team created successfully', team });
     } catch (error) {
