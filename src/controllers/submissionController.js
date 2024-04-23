@@ -1,10 +1,17 @@
 // Import Submission model
 const Submission = require('../models/submission');
 const Challenge = require('../models/challenge');
+const Notification = require('../models/notifications');
+const User = require('../models/User');
+
+const { getSocketInstance } = require('../../socket');
+
 
 exports.addSubmission = async (req, res) => {
     try {
-        challengeId = req.params.challengeId;
+        const io = getSocketInstance();
+        const challengeId = req.params.challengeId;
+
         const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${ req.files.file[0].filename}`
         const newSubmission = new Submission({
             challengeId,
@@ -18,8 +25,21 @@ exports.addSubmission = async (req, res) => {
             name:  req.files.file[0].filename,
             url: fileUrl
           });
-      
+
+        const challenger = await User.findById(newSubmission.submittedBy);
+
+        const challenge = await Challenge.findById(challengeId);
+        
         await newSubmission.save();
+        await io.emit("newSubmission", { firstname:challenger.FirstName , lastname:challenger.LastName ,idUser:challenge.createdBy,content:"has added a solution to your competition"}); 
+        const notifications = await Notification.create({
+            title:"Submission added",
+            content:"has added a solution to your competition",
+            recipientUserId:challenge.createdBy,
+            UserConcernedId:req.user.id,
+            isAdminNotification:false
+        })
+    
 
         res.status(201).json({ success: true, message: 'Submission added successfully' });
     } catch (error) {
@@ -46,6 +66,8 @@ exports.getSubmissionById = async (req, res) => {
 
 exports.editSubmission = async (req, res) => {
   try {
+       
+      const io = getSocketInstance();
 
       const submissionId = req.params.id;
 
@@ -65,7 +87,21 @@ exports.editSubmission = async (req, res) => {
           }];
       }
 
+      const challenger = await User.findById(existingSubmission.submittedBy);
+
+      const challenge = await Challenge.findById(existingSubmission.challengeId);
+      
       await existingSubmission.save();
+
+
+      await io.emit("editSubmission", { firstname:challenger.FirstName , lastname:challenger.LastName ,idUser:challenge.createdBy,content:"has edited his solution"}); 
+      const notifications = await Notification.create({
+          title:"Submission edit",
+          content:"has edited his solution",
+          recipientUserId:challenge.createdBy,
+          UserConcernedId:req.user.id,
+          isAdminNotification:false
+      })
 
       res.status(200).json({ success: true, message: 'Submission updated successfully' });
   } catch (error) {

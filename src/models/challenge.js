@@ -34,6 +34,16 @@ const ChallengeSchema = new mongoose.Schema({
   fileUrl:String,
   
 
+  rankingMode: {
+    automated:Boolean,
+    expert:Boolean,
+  },
+
+  numberParticipants:{
+      nbrTeam:String,
+      nbrSolo:String
+  },
+
   bareme: {
     output:Boolean,
     presentation:Boolean,
