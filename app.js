@@ -90,7 +90,7 @@ app.use("/terms" ,termsRouter );
 app.use("/adminlan", adminlanding);
 app.use("/notif" ,authMiddleware, notifRouter);
 app.use("/challenge", challengeRoute);
-app.use("/challenges",Challenge);
+app.use("/challenges" , Challenge);
 app.use("/submissions",authMiddleware,submissionRoute);
 app.use('/teams', teamRoutes);
 

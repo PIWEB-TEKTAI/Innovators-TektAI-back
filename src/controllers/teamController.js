@@ -1,24 +1,24 @@
 const Team = require('../models/team');
 
 exports.createTeam = async (req, res) => {
-    try {
-      const { name, selectedChallengers } = req.body;
-      const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
-  
-      const existingTeam = await Team.findOne({ leader });
-      if (existingTeam) {
-        return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
-      }
-   
-      const team = new Team({ name, invitations: selectedChallengers,leader });
-      await team.save();
-      res.status(201).json({ message: 'Team created successfully', team });
-    } catch (error) {
-      console.error('Error creating team:', error);
-      res.status(500).json({ error: 'Internal server error' });
+  try {
+    const { name, selectedChallengers } = req.body;
+    const leader = req.userId; // Assurez-vous que req.userId contient l'ID du leader
+
+    const existingTeam = await Team.findOne({ leader });
+    if (existingTeam) {
+      return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
     }
+ 
+    const team = new Team({ name, invitations: selectedChallengers, leader }); // Utilisez leader pour définir le leader du nouveau team
+    await team.save();
+    res.status(201).json({ message: 'Team created successfully', team });
+  } catch (error) {
+    console.error('Error creating team:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
-  
+
 exports.getAllTeams = async (req, res) => {
   try {
     const teams = await Team.find().populate('members').populate('invitations');

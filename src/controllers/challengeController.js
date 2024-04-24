@@ -284,7 +284,7 @@ exports.acceptParticipation = async (req, res) => {
   try {
     const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
-    const userCompany = await User.findById(challenge.createdBy);
+    const userCompany = await User.findById();
 
     if (!challenge) {
       return res.status(404).json({ message: 'Challenge not found' });
@@ -305,7 +305,6 @@ exports.acceptParticipation = async (req, res) => {
         title:"Accept Participation Request",
         content:"has accept your participation request",
         recipientUserId:user,
-        UserConcernedId:challenge.createdBy,
         isAdminNotification:false
     })
 
@@ -481,6 +480,44 @@ exports.deleteDiscussion = async (req, res) => {
   } catch (error) {
       console.error("Error deleting discussion:", error);
       return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+
+
+exports.getFilteredParticipationsByType = async (req, res) => { // Correction ici
+  const { challengeId, type } = req.params;
+  try {
+    let participations;
+    const challenge = await Challenge.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge non trouvé' });
+    }
+    
+    // Filtrer les participations en fonction du type
+    switch (type) {
+      case 'soloParticipants':
+        participations = challenge.soloParticipants;
+        break;
+      case 'teamParticipants':
+        participations = challenge.teamParticipants;
+        break;
+      case 'soloParticipationRequests':
+        participations = challenge.soloParticipationRequests;
+        break;
+      case 'teamParticipationRequests':
+        participations = challenge.teamParticipationRequests;
+        break;
+      default:
+        return res.status(400).json({ message: 'Type de participation invalide' });
+    }
+    
+    res.json(participations);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des participations filtrées par type :', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la récupération des participations filtrées par type' });
   }
 };
 
