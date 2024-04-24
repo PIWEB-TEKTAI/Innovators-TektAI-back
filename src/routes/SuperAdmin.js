@@ -390,6 +390,30 @@ router.get('/challenges/:email', async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
+router.get('/stats/:role', async (req, res) => {
+  try {
+    const role = req.params.role;
+    const lastMonthStart = new Date();
+    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
+    lastMonthStart.setHours(0, 0, 0, 0); // Set to beginning of the day
+
+    const lastMonthEnd = new Date();
+    lastMonthEnd.setHours(23, 59, 59, 999); // Set to end of the day
+
+    // Query the database to count users created within the last month for the specified role
+    const count = await User.countDocuments({ role: role, createdAt: { $gte: lastMonthStart, $lte: lastMonthEnd } });
+
+    // Log the count for debugging purposes
+    console.log(`${role} Count:`, count);
+
+    // Send the count as JSON response
+    res.status(200).json({ count });
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 
 module.exports = router;
