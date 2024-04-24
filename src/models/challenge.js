@@ -2,8 +2,15 @@ const mongoose = require('mongoose');
 
 const ChallengeSchema = new mongoose.Schema({
   title: String,
+
   description:String,
-  price:String,
+
+  problematic:String,
+
+  amount:String,
+
+  visibility:String,
+
   status: {
     type: String,
     enum: ['open', 'completed', 'archived'],
@@ -11,7 +18,7 @@ const ChallengeSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    default: Date.now
+    required:true
   },
   endDate: {
     type: Date,
@@ -23,13 +30,54 @@ const ChallengeSchema = new mongoose.Schema({
     required: true
   },
   targetedSkills: [String], 
-  dataset: {
-    name: String,
-    description: String,
-    fileUrl:String,
+  
+  fileUrl:String,
+  
 
+  rankingMode: {
+    automated:Boolean,
+    expert:Boolean,
   },
+
+  numberParticipants:{
+      nbrTeam:String,
+      nbrSolo:String
+  },
+
+  bareme: {
+    output:Boolean,
+    presentation:Boolean,
+    codeSource:Boolean,
+    dataSet:Boolean,
+    readmeFile:Boolean,
+    rapport:Boolean,
+    Demo:Boolean
+  },
+
+
+  prizes:{
+     prizeName:String,
+     prizeDescription:String
+  },
+
+  recruitement:{
+     positionTitle:String,
+     jobDescription:String
+  },
+  
+  freelance:{
+    projectTitle:String,
+    projectDescription:String
+ },
+
+  internship:{
+    internshipTitle:String,
+    internshipDescription:String,
+    duration:String
+  },
+
   image:String,
+
   participations: {
     soloParticipants: [{
       type: mongoose.Schema.Types.ObjectId,

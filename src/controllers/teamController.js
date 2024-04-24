@@ -196,3 +196,28 @@ exports.acceptJoinRequest = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+
+  exports.deleteTeam = async (req, res) => {
+    try {
+      const { teamId } = req.params;
+      
+      // Check if the team exists
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: 'Team not found' });
+      }
+  
+      // Check if the user making the request is authorized to delete the team
+      // For example, you might want to check if the user is the leader of the team
+      // This logic depends on your application's requirements and user roles
+  
+      // Delete the team
+      await Team.findByIdAndDelete(teamId);
+  
+      res.status(200).json({ message: 'Team deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting team:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+  
