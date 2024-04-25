@@ -5,39 +5,42 @@ const User = require('../models/User');
 
 
 exports.createTeam = async (req, res) => {
-    try {
-      const { name, selectedChallengers,private } = req.body;
-      const io = getSocketInstance();
-      const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
+  try {
+    const { name, selectedChallengers,private } = req.body;
+    const io = getSocketInstance();
+    const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
+
+    const existingTeam = await Team.findOne({ leader });
+    if (existingTeam) {
+      return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
+    }
+ 
+    const team = new Team({ name, invitations: selectedChallengers,leader,private:private });
+    await team.save();
+
+    for (const challengerId of selectedChallengers) {
+      const leaderChallenger = await User.findById(leader);
   
-      const existingTeam = await Team.findOne({ leader });
-      if (existingTeam) {
-        return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
-      }
-   
-      const team = new Team({ name, invitations: selectedChallengers,leader,private:private });
-      await team.save();
+      await io.emit("addInvitationRequest", { firstname: leaderChallenger.FirstName, lastname: leaderChallenger.LastName, idUser: challengerId, content: `has sent you an invitation to join ${name}` });
+  
+      await Notification.create({
+          title: "Invitation added",
+          content: `has sent you an invitation to join ${name}`,
+          recipientUserId: challengerId,
+          UserConcernedId: leaderChallenger._id,
+          isAdminNotification: false
+      });
+  }
 
-      for (const challengerId of selectedChallengers) {
-        const leaderChallenger = await User.findById(leader);
-    
-        await io.emit("addInvitationRequest", { firstname: leaderChallenger.FirstName, lastname: leaderChallenger.LastName, idUser: challengerId, content: `has sent you an invitation to join ${name}` });
-    
-        await Notification.create({
-            title: "Invitation added",
-            content: `has sent you an invitation to join ${name}`,
-            recipientUserId: challengerId,
-            UserConcernedId: leaderChallenger._id,
-            isAdminNotification: false
-        });
-    }
-
-      res.status(201).json({ message: 'Team created successfully', team });
-    } catch (error) {
-      console.error('Error creating team:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+    res.status(201).json({ message: 'Team created successfully', team });
+  } catch (error) {
+    console.error('Error creating team:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
+
+
+
 exports.editTeam = async (req, res) => {
   try {
     const { name, selectedChallengers } = req.body;

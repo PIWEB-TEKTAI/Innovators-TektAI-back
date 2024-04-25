@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 var Challenge = require("../models/challenge");
 const authMiddleware = require("../middlewares/authMiddleware");
+const User = require("../models/User");
+const Team = require("../models/team");
 
 router.get('/AllChallenge', async (req, res) => {
     try {
@@ -364,4 +366,171 @@ router.put("/completed/:id/update-status", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.get("/getMyChallenges", authMiddleware, async (req, res) => {
+  const userId = req.user.id; // Obtenez l'ID de l'utilisateur à partir du jeton JWT
+
+  try {
+    // Rechercher les défis créés par cet utilisateur
+    const userChallenges = await Challenge.find({ createdBy: userId })
+      .populate({
+        path: 'createdBy',
+        select: 'FirstName' // Sélectionner uniquement le champ 'username' de l'utilisateur
+      });
+
+    // Envoyer les défis associés à cet utilisateur en réponse
+    res.status(200).json(userChallenges);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+
+
+
+
+
+
+router.get("/MyChallenge", authMiddleware, async (req, res) => {
+  const userId = req.user.id; // Obtenez l'ID de l'utilisateur à partir du jeton JWT
+  console.log(userId);
+
+  try {
+    // Rechercher les défis créés par cet utilisateur
+    const userChallenges = await Challenge.find({ createdBy: userId }).populate(
+      "createdBy",
+      "username"
+    ); // Populate username from User model
+
+    console.log(userChallenges);
+    // Envoyer les défis associés à cet utilisateur en réponse
+    res.status(200).json(userChallenges);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+
+router.get("/participations", authMiddleware, async (req, res) => {
+  const userId = req.user.id; // Obtenez l'ID de l'utilisateur à partir du jeton JWT
+  try {
+    // Rechercher tous les défis
+    const challenges = await Challenge.find({ createdBy: userId });
+
+    if (!challenges || challenges.length === 0) {
+      return res.status(404).json({ message: "Aucun défi trouvé." });
+    }
+
+    // Retourner les participations des défis trouvés avec les titres
+    const participations = challenges.map(async challenge => {
+      const participation = {
+        title: challenge.title, // Ajouter le titre du challenge
+        soloParticipants: [],
+        soloParticipationRequests: [],
+        teamParticipants: [],
+        teamParticipationRequests: []
+      };
+
+      // Récupérer les détails des participants solo
+      for (const participantId of challenge.participations.soloParticipants) {
+        const user = await User.findById(participantId);
+        if (user) {
+          participation.soloParticipants.push({
+            _id: user._id,
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            imageUrl: user.imageUrl // Ajout de l'URL de l'image
+
+          });
+        }
+      }
+
+      // Récupérer les détails des demandes de participation solo
+      for (const requestId of challenge.participations.soloParticipationRequests) {
+        const user = await User.findById(requestId);
+        if (user) {
+          participation.soloParticipationRequests.push({
+            _id: user._id,
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            imageUrl: user.imageUrl // Ajout de l'URL de l'image
+
+          });
+        }
+      }
+
+      // Récupérer les détails des participants d'équipe et leurs leaders
+      for (const teamId of challenge.participations.TeamParticipants) {
+        const team = await Team.findById(teamId);
+        if (team) {
+          const leader = await User.findById(team.leader);
+          if (leader) {
+            participation.teamParticipants.push({
+              _id: team._id,
+              name: team.name,
+              imageUrl: team.imageUrl ,// Ajout de l'URL de l'image  
+
+              leader: {
+                FirstName: leader.FirstName,
+                LastName: leader.LastName,
+              }
+            });
+          }
+        }
+      }
+
+      // Récupérer les détails des demandes de participation d'équipe et leurs leaders
+      for (const requestId of challenge.participations.TeamParticipationRequests) {
+        const team = await Team.findById(requestId);
+        if (team) {
+          const leader = await User.findById(team.leader);
+          if (leader) {
+            participation.teamParticipationRequests.push({
+              _id: team._id,
+              name: team.name,
+              imageUrl: team.imageUrl ,// Ajout de l'URL de l'image  
+              leader: {
+                FirstName: leader.FirstName,
+                LastName: leader.LastName,
+
+              }
+            });
+          }
+        }
+      }
+
+      return participation;
+    });
+
+    // Attendre la résolution de toutes les promesses pour obtenir les participations
+    const resolvedParticipations = await Promise.all(participations);
+
+    res.status(200).json(resolvedParticipations);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des participations :", error);
+    res.status(500).json({ message: "Erreur serveur lors de la récupération des participations." });
+  }
+});
+
+
+router.get('/AfficherChallenges', async (req, res) => {
+  try {
+      const challenges = await Challenge.find();
+  
+      if (!challenges || challenges.length === 0) {
+          return res.status(404).json({ message: 'Aucun challenge trouvé' });
+      }
+  
+      res.status(200).json(challenges);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+
 module.exports = router;

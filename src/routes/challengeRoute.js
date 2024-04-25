@@ -22,5 +22,6 @@ router.delete('/:discussionId/delete', authMiddleware, challengeController.delet
 router.delete('/:discussionId/replies/:replyId/delete', authMiddleware, challengeController.deleteReply);
 router.post('/:challengeId/addTeamParticipationRequest/:teamId',authMiddleware,challengeController.addTeamParticipationRequest);
 router.get('/team/:teamId', challengeController.getChallengesByTeam);
+router.get('/:challengeId/participations/:type', challengeController.getFilteredParticipationsByType);
 
 module.exports = router
