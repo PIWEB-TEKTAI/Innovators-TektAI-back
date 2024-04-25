@@ -2,6 +2,7 @@
 const Submission = require('../models/submission');
 const Challenge = require('../models/challenge');
 
+
 exports.addSubmission = async (req, res) => {
     try {
         challengeId = req.params.challengeId;
@@ -146,4 +147,51 @@ exports.DeleteSubmission = async (req,res) =>{
         res.status(500).json({ msg: "An error occurred while deleting Submission" });
       }
   }
+  exports.AllSubmissions= async (req,res) =>{
+    try {
+        const Submission = await Submission.find();
+    
+    
+        if (! Submission||  Submission.length === 0) {
+          return res.status(404).json({ message: 'Aucun Submission trouver ' });
+        }
+    
+        res.status(200).json(Submission);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur serveur' });
+      }
+};
+exports.SubmissionsByIdChallenge= async (req,res) =>{
+  try {
+      var id = req.params.id;
+      const Submission = await Submission.find({challengeId:id});
   
+  
+      if (! Submission||  Submission.length === 0) {
+        return res.status(404).json({ message: 'Aucun Submission trouver ' });
+      }
+  
+      res.status(200).json(Submission);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+exports.SubmissionsDetails= async (req,res) =>{
+    try {
+        var id = req.params.id;
+        const Submission = await Submission.findById(id);
+    
+    
+        if (! Submission||  Submission.length === 0) {
+          return res.status(404).json({ message: 'Aucun Submission trouver ' });
+        }
+    
+        res.status(200).json(Submission);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur serveur' });
+      }
+  };
+

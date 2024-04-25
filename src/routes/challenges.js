@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var Challenge = require("../models/challenge");
+const User = require('../models/User');
 const authMiddleware = require("../middlewares/authMiddleware");
 
 router.get('/AllChallenge', async (req, res) => {
@@ -195,6 +196,22 @@ router.get("/challenge/:id", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+router.get("/challenges/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const challenge = await Challenge.findById({ _id: id });
+
+    if (!challenge || challenge.length === 0) {
+      return res.status(404).json({ message: "Aucun challenge trouver " });
+    }
+
+    res.status(200).json(challenge);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
 router.post("/AddChallenger", async function (req, res) {
   const { title, description, price, image, endDate, targetedSkills } =
     req.body;
@@ -364,4 +381,67 @@ router.put("/completed/:id/update-status", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+
+router.put("/Favories/:idChallenger/:idUser", async (req, res) => {
+  
+  const { idChallenger, idUser } = req.params; // Id du challenge et de l'utilisateur
+
+  try {
+    // Vérifiez si l'identifiant de l'utilisateur est correct
+    
+    const user = await User.findById(idUser);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Vérifiez si l'utilisateur a déjà ajouté ce challenge à ses favoris
+    if (user.favories.includes(idChallenger)) {
+      return res.status(400).json({ message: "Challenge already in favorites" });
+    }
+
+    // Ajoutez l'identifiant du challenge aux favoris de l'utilisateur
+    user.favories.push(idChallenger);
+
+    // Enregistrez les modifications dans la base de données
+    await user.save();
+
+    res.status(200).json({ message: "Challenge added to favorites" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+router.get("/favorites/:idUser", async (req, res) => {
+  const { idUser } = req.params; // ID de l'utilisateur
+
+  try {
+    // Recherchez l'utilisateur dans la base de données
+    const user = await User.findById(idUser);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Récupérez les favoris de l'utilisateur
+    const favorites = user.favories;
+
+    // Récupérez tous les champs des challenges associés aux IDs des favoris de l'utilisateur
+    const challenges = await Promise.all(favorites.map(async (favoriteId) => {
+      const challenge = await Challenge.findById(favoriteId);
+      return challenge; // Retourne le challenge trouvé pour cet ID
+    }));
+
+    res.status(200).json({ favorites: challenges }); // Retourne la liste des challenges associés aux favoris de l'utilisateur
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
 module.exports = router;

@@ -90,6 +90,11 @@ const userSchema = new mongoose.Schema({
       type: Array,
     },
 
+    favories: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Challenge'
+    }],
+
    isEmailVerified:{
         type:Boolean
    },
