@@ -238,6 +238,7 @@ console.log(userId)
 exports.addTeamParticipationRequest = async (req, res) => {
   const { challengeId ,teamId} = req.params;
   try {
+
     const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
 
@@ -254,7 +255,19 @@ exports.addTeamParticipationRequest = async (req, res) => {
     }
 
     challenge.participations.TeamParticipationRequests.push( teamId );
+
+    const team = await Team.findById(teamId);
+
     await challenge.save();
+
+   /* await io.emit("newParticipationRequestTeam", { name:team.name , idUser:challenge.createdBy , content:"has sent a participation request"}); 
+    const notifications = await Notification.create({
+        title:"Participation Team Request",
+        content:"has sent a participation request",
+        recipientUserId:challenge.createdBy,
+        UserConcernedId:team._id,
+        isAdminNotification:false
+    })*/
 
     res.status(200).json({ message: 'Participation request added successfully' });
   } catch (error) {
