@@ -23,7 +23,7 @@ const getAllNotificationsUser = async (req,res)=>{
 
       const userId = req.user.id
       console.log(userId)
-      const notifications = await Notification.find({ recipientUserId:userId  }).populate('UserConcernedId').sort({ createdAt: -1 });
+      const notifications = await Notification.find({ recipientUserId:userId  }).populate('UserConcernedId').populate('TeamConcernedId').sort({ createdAt: -1 });
       console.log(notifications)
       if (!notifications || notifications.length === 0) {
         return res.status(404).json({ message: 'Aucun notifications trouvé' });
@@ -34,6 +34,7 @@ const getAllNotificationsUser = async (req,res)=>{
       res.status(500).json({ message: 'Erreur serveur' });
     }
 }
+
 
 
 

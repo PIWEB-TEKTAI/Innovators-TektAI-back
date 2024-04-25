@@ -54,8 +54,13 @@ exports.getAllTeams = async (req, res) => {
 
 exports.getAllTeamsPublic = async (req, res) => {
   try {
-    const teams = await Team.find({private:false}).populate('members').populate('invitations');
+    const userId = req.user.id 
 
+    const teams = await Team.find({private:false ,  $nor: [
+      { leader: userId },
+      { members: userId } 
+    ]}).populate('members').populate('invitations');
+    
     res.json(teams);
   } catch (error) {
     console.error('Error fetching teams:', error);

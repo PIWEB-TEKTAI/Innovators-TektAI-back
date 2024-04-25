@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const submissionController = require('../controllers/submissionController');
-const multer = require('../middlewares/multerConfig2')
+const multer = require('../middlewares/multerConfig3')
 
 router.post('/:challengeId/addSubmission',multer, submissionController.addSubmission);
 router.get('/get/:id', submissionController.getSubmissionById);

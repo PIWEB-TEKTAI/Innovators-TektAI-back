@@ -18,6 +18,10 @@ const NotificationsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' 
   },
+  TeamConcernedId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team' 
+  },
   isAdminNotification: {
     type: Boolean,
     default: false 

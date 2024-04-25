@@ -260,14 +260,14 @@ exports.addTeamParticipationRequest = async (req, res) => {
 
     await challenge.save();
 
-   /* await io.emit("newParticipationRequestTeam", { name:team.name , idUser:challenge.createdBy , content:"has sent a participation request"}); 
+    await io.emit("newParticipationRequestTeam", { name:team.name , idUser:challenge.createdBy , content:"has sent a participation request"}); 
     const notifications = await Notification.create({
         title:"Participation Team Request",
         content:"has sent a participation request",
         recipientUserId:challenge.createdBy,
-        UserConcernedId:team._id,
+        TeamConcernedId:team._id,
         isAdminNotification:false
-    })*/
+    })
 
     res.status(200).json({ message: 'Participation request added successfully' });
   } catch (error) {
@@ -336,10 +336,10 @@ exports.acceptParticipation = async (req, res) => {
       const team = await Team.findById(userId);
     challenge.participations.TeamParticipants.push(team);
 
-    await io.emit("AcceptParticipationRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:"has accept your participation request"}); 
+    await io.emit("AcceptParticipationTeamRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:`has accept your participation request for your team ${team.name}`}); 
     const notifications = await Notification.create({
         title:"Accept Participation Request",
-        content:"has accept your participation request",
+        content:`has accept your participation request for your team ${team.name}`,
         recipientUserId:team.leader,
         UserConcernedId:challenge.createdBy,
         isAdminNotification:false
@@ -349,10 +349,7 @@ exports.acceptParticipation = async (req, res) => {
 
     res.status(200).json({ message: 'Participation request accepted successfully' });
     }
-   
-
-
-
+  
   } catch (error) {
     console.error('Error accepting participation request:', error);
     res.status(500).json({ message: 'Internal server error' });
