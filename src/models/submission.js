@@ -11,6 +11,11 @@ const SubmissionSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  submittedByTeam: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team',
+    required: true
+  },
   submissionDate: {
     type: Date,
     default: Date.now
