@@ -71,7 +71,10 @@ exports.editChallenge = async (req, res) => {
 exports.getChallengeById = async (req, res) => {
     try {
       const challengeId = req.params.id; 
-      const challenge = await Challenge.findById(challengeId);
+      const challenge = await Challenge.findById(challengeId)    
+      .populate('participations.TeamParticipants')
+      .populate('participations.TeamParticipationRequests')
+      .exec();
       if (!challenge) {
           return res.status(404).send({ message: 'Challenge not found' });
        }
@@ -523,5 +526,38 @@ exports.deleteReply = async (req, res) => {
   } catch (error) {
       console.error("Error deleting reply:", error);
       return res.status(500).json({ message: "Internal server error" });
+  }
+};
+exports.getChallengesByTeam = async (req, res) => {
+  try {
+    // Get the team ID from the request parameters
+    const teamId = req.params.teamId;
+
+    // Find challenges where the team is a participant or has a participation request
+    const participantChallenges = await Challenge.find({
+      $or: [
+        { 'participations.TeamParticipants': teamId },
+        { 'participations.TeamParticipationRequests': teamId }
+      ]
+    });
+
+    // Find submissions related to the team
+    const submissions = await Submission.find({ submittedByTeam: teamId });
+
+    // Extract unique challenge IDs from submissions
+    const challengeIdsFromSubmissions = submissions.map(submission => submission.challengeId);
+    const uniqueChallengeIdsFromSubmissions = [...new Set(challengeIdsFromSubmissions)];
+
+    // Find challenges related to submissions
+    const challengesFromSubmissions = await Challenge.find({ _id: { $in: uniqueChallengeIdsFromSubmissions } });
+
+    // Concatenate both sets of challenges
+    const allChallenges = [...participantChallenges, ...challengesFromSubmissions];
+
+    // Return all challenges
+    res.status(200).json({ challenges: allChallenges });
+  } catch (error) {
+    console.error('Error fetching challenges by team:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

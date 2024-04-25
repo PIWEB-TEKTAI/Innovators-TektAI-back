@@ -1,4 +1,11 @@
 const mongoose = require('mongoose');
+const imageUrls = [
+  'http://localhost:3000/images/travail-en-equipe.png',
+  'http://localhost:3000/images/idee.png',
+  'http://localhost:3000/images/gens.png',
+  'http://localhost:3000/images/developpeurs.png',
+
+];
 
 const teamSchema = new mongoose.Schema({
   name: {
@@ -7,7 +14,9 @@ const teamSchema = new mongoose.Schema({
   },
   imageUrl: { 
     type: String,
-    default:"http://localhost:3000/images/transparent-management-icon-team-icon-5e143fb74b04b0.8063195515783853353073.jpg"
+    default: function() {
+      return imageUrls[Math.floor(Math.random() * imageUrls.length)];
+    }
   },
   leader: {
     type: mongoose.Schema.Types.ObjectId,

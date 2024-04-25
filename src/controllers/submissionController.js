@@ -10,8 +10,10 @@ exports.addSubmission = async (req, res) => {
   try {
     const io = getSocketInstance();
     const challengeId = req.params.challengeId;
+    const type = req.body.type;
+    const teamId = req.body.teamId;
   
-    const newSubmission = new Submission({
+    let newSubmission = new Submission({
       challengeId,
       submittedBy: req.user.id,
       submissionDate: new Date(),
@@ -19,7 +21,17 @@ exports.addSubmission = async (req, res) => {
       title: req.body.title,
       output:req.body.output,
     });
-
+    if(type=="team"){
+      newSubmission = new Submission({
+        challengeId,
+        submittedBy: req.user.id,
+        submittedByTeam: teamId,
+        submissionDate: new Date(),
+        description: req.body.description,
+        title: req.body.title,
+        output:req.body.output,
+      });
+    }
     if (req.files && Object.keys(req.files).length > 0) {
       Object.keys(req.files).forEach(key => {
 
