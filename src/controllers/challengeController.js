@@ -25,11 +25,11 @@ exports.editChallenge = async (req, res) => {
             fileUrl = `${file.filename}`;
           }
         });
-        req.body.dataset.fileUrl = fileUrl;
+        req.body.fileUrl = fileUrl;
         req.body.image = imageUrl;
       });
     }else {
-      req.body.dataset.fileUrl = challenge.dataset.fileUrl;
+      req.body.fileUrl = challenge.fileUrl;
       req.body.image = challenge.image
     }
 
@@ -104,7 +104,8 @@ exports.addChallenge = async (req, res) => {
         });
       });
     }
-    req.body.dataset.fileUrl = fileUrl;
+    console.log("file" + fileUrl)
+    req.body.fileUrl = fileUrl;
     req.body.image = imageUrl;
     const challengeData = {
       ...req.body,
@@ -240,6 +241,7 @@ console.log(userId)
 exports.addTeamParticipationRequest = async (req, res) => {
   const { challengeId ,teamId} = req.params;
   try {
+
     const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
 
@@ -256,7 +258,19 @@ exports.addTeamParticipationRequest = async (req, res) => {
     }
 
     challenge.participations.TeamParticipationRequests.push( teamId );
+
+    const team = await Team.findById(teamId);
+
     await challenge.save();
+
+   /* await io.emit("newParticipationRequestTeam", { name:team.name , idUser:challenge.createdBy , content:"has sent a participation request"}); 
+    const notifications = await Notification.create({
+        title:"Participation Team Request",
+        content:"has sent a participation request",
+        recipientUserId:challenge.createdBy,
+        UserConcernedId:team._id,
+        isAdminNotification:false
+    })*/
 
     res.status(200).json({ message: 'Participation request added successfully' });
   } catch (error) {

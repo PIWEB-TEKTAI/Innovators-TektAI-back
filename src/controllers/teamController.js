@@ -1,8 +1,13 @@
 const Team = require('../models/team');
+const Notification = require('../models/notifications');
+const { getSocketInstance } = require('../../socket');
+const User = require('../models/User');
+
 
 exports.createTeam = async (req, res) => {
     try {
       const { name, selectedChallengers,private } = req.body;
+      const io = getSocketInstance();
       const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
   
       const existingTeam = await Team.findOne({ leader });
@@ -12,6 +17,21 @@ exports.createTeam = async (req, res) => {
    
       const team = new Team({ name, invitations: selectedChallengers,leader,private:private });
       await team.save();
+
+      for (const challengerId of selectedChallengers) {
+        const leaderChallenger = await User.findById(leader);
+    
+        await io.emit("addInvitationRequest", { firstname: leaderChallenger.FirstName, lastname: leaderChallenger.LastName, idUser: challengerId, content: `has sent you an invitation to join ${name}` });
+    
+        await Notification.create({
+            title: "Invitation added",
+            content: `has sent you an invitation to join ${name}`,
+            recipientUserId: challengerId,
+            UserConcernedId: leaderChallenger._id,
+            isAdminNotification: false
+        });
+    }
+
       res.status(201).json({ message: 'Team created successfully', team });
     } catch (error) {
       console.error('Error creating team:', error);
@@ -147,6 +167,8 @@ exports.acceptJoinRequest = async (req, res) => {
   };
   exports.acceptJoinInvitation = async (req, res) => {
     try {
+      const io = getSocketInstance();
+
       const teamId = req.params.teamId;
       const userId = req.userId;
   
@@ -162,7 +184,20 @@ exports.acceptJoinRequest = async (req, res) => {
       team.members.push(userId);
       // Remove user from invitations
       team.invitations = team.invitations.filter(invitation => invitation.toString() !== userId);
+
+      const leaderChallenger = await User.findById(team.leader);
+      const challenger = await User.findById(userId);
       await team.save();
+    
+      await io.emit("acceptInvitationRequest", { firstname: challenger.FirstName, lastname: challenger.LastName, idUser: leaderChallenger._id, content: `has accept your invitation to join ${team.name}` });
+  
+      await Notification.create({
+          title: "Accept Invitation",
+          content: `has accept your invitation to join ${team.name}`,
+          recipientUserId: leaderChallenger._id,
+          UserConcernedId: userId,
+          isAdminNotification: false
+      });
   
       res.status(200).json({ message: 'Invitation accepted successfully' });
     } catch (error) {

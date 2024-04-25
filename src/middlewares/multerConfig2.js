@@ -17,14 +17,14 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, callback) => {
-    console.log(file)
     const name = file.originalname.split(' ').join('_');
     const extension = MIME_TYPES[file.mimetype];
     callback(null, name + Date.now() + '.' + extension);
   }
 });
 
-const upload = multer({ storage: storage }).fields([{ name: 'image', maxCount: 1 }, { name: 'file', maxCount: 1 }]);
+const upload = multer({ storage: storage }).any()
+//fields([{ name: 'image', maxCount: 1 }, { name: 'file', maxCount: 1 }]);
 
 module.exports = upload;
 

@@ -9,12 +9,10 @@ const SubmissionSchema = new mongoose.Schema({
   submittedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
   },
   submittedByTeam: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Team',
-    required: true
   },
   submissionDate: {
     type: Date,
@@ -28,16 +26,33 @@ const SubmissionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  files: [{
-    name: {
-      type: String,
-      required: true
-    },
-    url: {
-      type: String,
-      required: true
-    }
-  }],
+  output: {
+    type: String,
+  },
+  datasetFile:{
+    name:String,
+    url:String
+  },
+  presentationFile:{
+    name:String,
+    url:String
+  },
+  codeSourceFile:{
+    name:String,
+    url:String
+  },
+  reportFile:{
+    name:String,
+    url:String
+  },
+  demoFile:{
+    name:String,
+    url:String
+  },
+  readMeFile:{
+    name:String,
+    url:String
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
