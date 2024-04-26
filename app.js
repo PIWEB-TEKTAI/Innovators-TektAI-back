@@ -15,7 +15,7 @@ const admin = require('./src/routes/SuperAdmin');
 const Challenge = require('./src/routes/challenges');
 const adminRouter = require('./src/routes/admin.route');
 const termsRouter = require('./src/routes/TermsConditions')
-
+const Solutions=require('./src/routes/submission');
 const adminlanding = require('./src/routes/adminlanding.route');
 const notifRouter = require('./src/routes/notifications');
 const challengeRoute = require('./src/routes/challengeRoute')
@@ -84,7 +84,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use("/Admin", admin);
-
+app.use("/Submission",Solutions);
 app.use("/admin2", authMiddleware,adminRouter);
 app.use("/terms" ,termsRouter );
 app.use("/adminlan", adminlanding);

@@ -9,4 +9,7 @@ router.post('/editSubmission/:id',multer, submissionController.editSubmission);
 router.get('/:challengeId/submissions', submissionController.getSubmissionsByChallengeId);
 router.get('/get/all/submission', submissionController.getListChallengeChallenger);
 router.delete('/delete/:id', submissionController.DeleteSubmission);
+router.get('/AllSubmissions',submissionController.AllSubmissions);
+router.get('/SubmissionsByIdChallenge/:id',submissionController.SubmissionsByIdChallenge);
+router.get('/SubmissionsDetails/:id', submissionController.SubmissionsDetails);
 module.exports = router;
