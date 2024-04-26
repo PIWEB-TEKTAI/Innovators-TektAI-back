@@ -6,7 +6,6 @@ const User = require("../models/User");
 
 const { getSocketInstance } = require("../../socket");
 
-
 exports.addSubmission = async (req, res) => {
   try {
     const io = getSocketInstance();
@@ -126,7 +125,7 @@ exports.addSubmission = async (req, res) => {
 exports.getSubmissionById = async (req, res) => {
   try {
     const submissionId = req.params.id;
-    const submission = await Submission.findById(submissionId);
+   const submission = await Submission.findById(submissionId).populate('submittedBy').populate('challengeId');
     if (!submission) {
       return res.status(404).send({ message: "Submittion not found" });
     }

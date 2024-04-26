@@ -579,7 +579,7 @@ router.put("/Favories/:idChallenger/:idUser", async (req, res) => {
 });
 
 
-router.get("/favorites/:idUser", async (req, res) => {
+router.get("/favorites/:idUser", authMiddleware , async (req, res) => {
   const { idUser } = req.params; // ID de l'utilisateur
 
   try {

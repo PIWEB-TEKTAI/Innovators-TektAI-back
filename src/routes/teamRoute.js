@@ -17,6 +17,7 @@ router.get('/:id', teamController.getTeamById);
 router.get('/challenger/invitations',authMiddleware, teamController.getInvitationsForChallenger);
 router.put('/:teamId/accept-invitation',authMiddleware, teamController.acceptJoinInvitation);
 router.put('/edit/:teamId', teamController.editTeam);
+router.delete('/:teamId', teamController.deleteTeam);
 
 // Route to decline invitation
 router.put('/:teamId/decline-invitation', authMiddleware,teamController.declineJoinInvitation);
