@@ -24,7 +24,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage }).any()
-//fields([{ name: 'image', maxCount: 1 }, { name: 'file', maxCount: 10 }]);
 
 module.exports = upload;
 

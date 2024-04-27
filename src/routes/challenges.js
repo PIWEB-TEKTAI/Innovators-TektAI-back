@@ -599,7 +599,7 @@ router.get("/favorites/:idUser", authMiddleware , async (req, res) => {
       return challenge; // Retourne le challenge trouvé pour cet ID
     }));
 
-    res.status(200).json({ favorites: challenges }); // Retourne la liste des challenges associés aux favoris de l'utilisateur
+    res.status(200).json(challenges); // Retourne la liste des challenges associés aux favoris de l'utilisateur
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

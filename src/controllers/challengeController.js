@@ -276,7 +276,7 @@ exports.acceptParticipation = async (req, res) => {
   try {
     const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
-    const userCompany = await User.findById();
+    const userCompany = await User.findById(challenge.createdBy);
 
     if (!challenge) {
       return res.status(404).json({ message: 'Challenge not found' });
@@ -297,6 +297,7 @@ exports.acceptParticipation = async (req, res) => {
         title:"Accept Participation Request",
         content:"has accept your participation request",
         recipientUserId:user,
+        UserConcernedId:challenge.createdBy,
         isAdminNotification:false
     })
 
