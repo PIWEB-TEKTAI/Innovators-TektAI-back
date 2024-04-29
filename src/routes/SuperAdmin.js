@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/User'); // Import your User model
+const validateAccountEmail = require('../utils/validateAccountEmail')
+
 var bcrypt = require("bcryptjs");
 router.get('/All', async (req, res) => {
   try {
@@ -138,10 +140,12 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
           const newState = req.body.state; 
       
           const user = await User.findOneAndUpdate({ email: email }, { $set: { state: newState } }, { new: true });
-      console.log(user);
           if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
           }
+          const template = 'accountValidated'     
+
+          await validateAccountEmail(user.email , "Your Account is Validated!", template , user.FirstName , user.LastName);
       
           res.status(200).json({ message: 'user state changes', user: user });
         } catch (error) {
@@ -316,17 +320,20 @@ router.get('/validate/:email', function(req, res, next) {
   const userId = req.params.email;
 
   User.findByIdAndUpdate(userId, { state: 'validated' }, { new: true })
-      .then(updatedUser => {
+      .then(async updatedUser => {
           if (!updatedUser) {
               return res.status(404).json({ error: "Utilisateur non trouvé" });
           }
-          res.json(updatedUser); // Renvoie l'utilisateur mis à jour
+   
+          res.json(updatedUser); 
       })
       .catch(err => {
           console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
           res.status(500).json({ error: "Erreur Interne du Serveur" });
       });
 });
+
+
 // PUT to update user information by email  (additional endpoint for editing user info)
 router.put('/update/:email', function(req, res, next) {
   const email = req.params.email;
