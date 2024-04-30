@@ -28,6 +28,7 @@ exports.createTeam = async (req, res) => {
           content: `has sent you an invitation to join ${name}`,
           recipientUserId: challengerId,
           UserConcernedId: leaderChallenger._id,
+          TeamInvitation:true,
           isAdminNotification: false
       });
   }

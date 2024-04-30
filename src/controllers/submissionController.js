@@ -5,6 +5,7 @@ const Notification = require("../models/notifications");
 const User = require("../models/User");
 
 const { getSocketInstance } = require("../../socket");
+const Team = require("../models/team");
 
 exports.addSubmission = async (req, res) => {
   try {
@@ -90,10 +91,28 @@ exports.addSubmission = async (req, res) => {
       });
     }
     const challenger = await User.findById(newSubmission.submittedBy);
+    const team = await Team.findById(teamId);
 
     const challenge = await Challenge.findById(challengeId);
 
     await newSubmission.save();
+     
+    if(type=="team"){
+      await io.emit("newTeamSubmission", {
+        name:team.name,
+        idUser: challenge.createdBy,
+        content: "has added a solution to your competition",
+      });
+      const notifications = await Notification.create({
+        title: "TeamSubmission added",
+        content: "has added a solution to your competition",
+        recipientUserId: challenge.createdBy,
+        TeamConcernedId: team._id,
+        SubmittionConcernedId:newSubmission._id,
+        isAdminNotification: false,
+      });
+    }else{
+
     await io.emit("newSubmission", {
       firstname: challenger.FirstName,
       lastname: challenger.LastName,
@@ -105,9 +124,10 @@ exports.addSubmission = async (req, res) => {
       content: "has added a solution to your competition",
       recipientUserId: challenge.createdBy,
       UserConcernedId: req.user.id,
+      SubmittionConcernedId:newSubmission._id,
       isAdminNotification: false,
     });
-
+  }
     res
       .status(201)
       .json({ success: true, message: "Submission added successfully" });
@@ -228,6 +248,7 @@ exports.editSubmission = async (req, res) => {
       content: "has edited his solution",
       recipientUserId: challenge.createdBy,
       UserConcernedId: req.user.id,
+      SubmittionConcernedId:submissionId,
       isAdminNotification: false,
     });
 
@@ -270,9 +291,22 @@ exports.getListChallengeChallenger = async (req, res) => {
   console.log(userId);
 
   try {
-    const challenges = await Challenge.find({
-      "participations.soloParticipants": { $in: [userId] },
+    const team = await Team.find({
+      $or: [
+        { members: { $in: [userId] } }, 
+        { leader: userId } 
+      ]
     });
+
+    const teamIds = team.map(team => team._id);
+
+    const challenges = await Challenge.find({
+      $or:[
+        {"participations.soloParticipants": { $in: [userId] }},
+        {"participations.TeamParticipants": { $in: teamIds }}
+      ]
+    });
+
     if (!challenges || challenges.length === 0) {
       return res
         .status(404)

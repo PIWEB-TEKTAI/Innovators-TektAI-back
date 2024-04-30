@@ -26,7 +26,7 @@ const getAllNotificationsUser = async (req,res)=>{
       const notifications = await Notification.find({ recipientUserId:userId  }).populate('UserConcernedId').populate('TeamConcernedId').sort({ createdAt: -1 });
       console.log(notifications)
       if (!notifications || notifications.length === 0) {
-        return res.status(404).json({ message: 'Aucun notifications trouvé' });
+        return res.status(200).json({ message: 'Aucun notifications trouvé' });
       }
       res.status(200).json({notifications});
     } catch (error) {
@@ -38,9 +38,8 @@ const getAllNotificationsUser = async (req,res)=>{
 
 
 
-
 module.exports = {
     getAllNotificationsAdmin,
-    getAllNotificationsUser
+    getAllNotificationsUser,
  }
  

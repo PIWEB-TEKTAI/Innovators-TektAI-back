@@ -231,6 +231,7 @@ console.log(userId)
         content:"has sent a participation request",
         recipientUserId:challenge.createdBy,
         UserConcernedId:userId,
+        ChallengeConcernedId:challengeId,
         isAdminNotification:false
     })
 
@@ -271,6 +272,7 @@ exports.addTeamParticipationRequest = async (req, res) => {
         content:"has sent a participation request",
         recipientUserId:challenge.createdBy,
         TeamConcernedId:team._id,
+        ChallengeConcernedId:challengeId,
         isAdminNotification:false
     })
 
@@ -325,6 +327,7 @@ exports.acceptParticipation = async (req, res) => {
         content:"has accept your participation request",
         recipientUserId:user,
         UserConcernedId:challenge.createdBy,
+        ChallengeConcernedId:challengeId,
         isAdminNotification:false
     })
 
@@ -347,6 +350,7 @@ exports.acceptParticipation = async (req, res) => {
         content:`has accept your participation request for your team ${team.name}`,
         recipientUserId:team.leader,
         UserConcernedId:challenge.createdBy,
+        ChallengeConcernedId:challengeId,
         isAdminNotification:false
     })
 

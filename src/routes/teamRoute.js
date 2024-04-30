@@ -3,7 +3,7 @@ const router = express.Router();
 const teamController = require('../controllers/teamController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-router.post('/',teamController.createTeam);
+router.post('/',authMiddleware , teamController.createTeam);
 
 router.post('/:teamId/join',authMiddleware, teamController.joinTeamRequest);
 

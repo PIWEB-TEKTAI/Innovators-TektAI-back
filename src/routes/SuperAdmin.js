@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 const User = require('../models/User'); // Import your User model
 const validateAccountEmail = require('../utils/validateAccountEmail')
+const authMiddleware = require('../middlewares/authMiddleware');
+
 
 var bcrypt = require("bcryptjs");
 router.get('/All', async (req, res) => {
@@ -134,7 +136,7 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
 
 
 
-    router.put('/:email/updateState', async (req, res) => {
+    router.put('/:email/updateState', authMiddleware ,  async (req, res) => {
       try {
           const email = req.params.email;
           const newState = req.body.state; 
@@ -143,10 +145,12 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
           if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
           }
-          const template = 'accountValidated'     
 
-          await validateAccountEmail(user.email , "Your Account is Validated!", template , user.FirstName , user.LastName);
-      
+          if(newState === 'validated'){
+            const template = 'accountValidated'     
+            await validateAccountEmail(user.email , "Your Account is Validated!", template , user.FirstName , user.LastName);
+          }
+          
           res.status(200).json({ message: 'user state changes', user: user });
         } catch (error) {
           console.error(error);
