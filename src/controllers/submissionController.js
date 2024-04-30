@@ -290,7 +290,7 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
   const { challengeId } = req.params;
 
   try {
-    const submissions = await Submission.find({ challengeId });
+    const submissions = await Submission.find({ challengeId }).populate('submittedBy').populate('submittedByTeam');
     if (!submissions || submissions.length === 0) {
       return res
         .status(404)
