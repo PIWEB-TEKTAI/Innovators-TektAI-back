@@ -7,7 +7,11 @@ const Team = require("../models/team");
 
 router.get('/AllChallenge', async (req, res) => {
     try {
-        const challenge = await Challenge.find({  status: { $ne: 'archived' }});
+        const challenge = await Challenge.find({ 
+          $and:[
+            {status: { $ne: 'archived' }},
+            {visibility:'Public'}
+          ]});
        console.log(challenge)
     
         if (! challenge ||  challenge.length === 0) {
@@ -25,7 +29,9 @@ router.get("/AllChallengeLanding", async (req, res) => {
   try {
   
     const challenge = await Challenge.find({
-    status: 'open'
+      $and:[
+        {status:'open' , visibility:'Public'}
+      ]
     }).sort({startDate:-1}).limit(3);
 
     if (!challenge || challenge.length === 0) {
@@ -41,7 +47,11 @@ router.get("/AllChallengeLanding", async (req, res) => {
 
 router.get('/OpenedChallenge', async (req, res) => {
     try {
-        const challenge = await Challenge.find({  status:'open'});
+        const challenge = await Challenge.find({ 
+          $and:[
+            {status:'open'},
+            {visibility:'Public'}
+          ]});
     
     
         if (! challenge ||  challenge.length === 0) {
@@ -56,7 +66,11 @@ router.get('/OpenedChallenge', async (req, res) => {
 });
 router.get('/completedChallenge', async (req, res) => {
     try {
-        const challenge = await Challenge.find({  status:'completed'});
+        const challenge = await Challenge.find({ 
+          $and:[
+            {status: 'completed'},
+            {visibility:'Public'}
+          ]});
     
     
         if (! challenge ||  challenge.length === 0) {
@@ -101,86 +115,8 @@ router.get('/challenge/:id', async (req, res) => {
   }
 });
 
-router.get("/AllChallengeLanding", async (req, res) => {
-  try {
-  
-    const challenge = await Challenge.find({
-    status: 'open'
-    }).sort({startDate:-1}).limit(3);
 
-    if (!challenge || challenge.length === 0) {
-      return res.status(404).json({ message: "Aucun challenge trouver " });
-    }
 
-    res.status(200).json(challenge);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
-
-router.get("/OpenedChallenge", async (req, res) => {
-  try {
-    const challenge = await Challenge.find({ status: "open" });
-
-    if (!challenge || challenge.length === 0) {
-      return res.status(404).json({ message: "Aucun challenge trouver " });
-    }
-
-    res.status(200).json(challenge);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
-router.get("/completedChallenge", async (req, res) => {
-  try {
-    const challenge = await Challenge.find({ status: "completed" });
-
-    if (!challenge || challenge.length === 0) {
-      return res.status(404).json({ message: "Aucun challenge trouver " });
-    }
-
-    res.status(200).json(challenge);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
-router.get("/archivedChallenge", async (req, res) => {
-  try {
-    const challenge = await Challenge.find({ status: "archived" });
-
-    if (!challenge || challenge.length === 0) {
-      return res.status(404).json({ message: "Aucun challenge trouver " });
-    }
-
-    res.status(200).json(challenge);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
-
-router.get("/MyChallenge", authMiddleware, async (req, res) => {
-  const userId = req.user.id; // Obtenez l'ID de l'utilisateur à partir du jeton JWT
-  console.log(userId);
-
-  try {
-    // Rechercher les défis créés par cet utilisateur
-    const userChallenges = await Challenge.find({ createdBy: userId }).populate(
-      "createdBy",
-      "username"
-    ); // Populate username from User model
-
-    console.log(userChallenges);
-    // Envoyer les défis associés à cet utilisateur en réponse
-    res.status(200).json(userChallenges);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
 
 router.get("/challenge/:id", async (req, res) => {
   try {
@@ -367,9 +303,7 @@ router.put("/completed/:id/update-status", authMiddleware, async (req, res) => {
     console.log("createdBy" + challenge.createdBy);
     if (!challenge) {
       return res.status(404).json({ message: "Challenge not found" });
-    } else if (challenge.createdBy != userId) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
+    } 
 
     // Mettez à jour le statut du défi à 'open'
     challenge.status = "completed";
@@ -579,6 +513,37 @@ router.put("/Favories/:idChallenger/:idUser", async (req, res) => {
 });
 
 
+router.put("/Unfavorite/:idChallenger/:idUser", async (req, res) => {
+  const { idChallenger, idUser } = req.params; // ID du défi et de l'utilisateur
+
+  try {
+    // Vérifiez si l'identifiant de l'utilisateur est correct
+    const user = await User.findById(idUser);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Vérifiez si l'utilisateur a déjà ajouté ce défi à ses favoris
+    const index = user.favories.indexOf(idChallenger);
+    if (index === -1) {
+      return res.status(400).json({ message: "Challenge is not in favorites" });
+    }
+
+    // Retirez l'identifiant du défi des favoris de l'utilisateur
+    user.favories.splice(index, 1);
+
+    // Enregistrez les modifications dans la base de données
+    await user.save();
+
+    res.status(200).json({ message: "Challenge removed from favorites" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 router.get("/favorites/:idUser", authMiddleware , async (req, res) => {
   const { idUser } = req.params; // ID de l'utilisateur
 
@@ -598,6 +563,7 @@ router.get("/favorites/:idUser", authMiddleware , async (req, res) => {
       const challenge = await Challenge.findById(favoriteId);
       return challenge; // Retourne le challenge trouvé pour cet ID
     }));
+    console.log(challenges)
 
     res.status(200).json(challenges); // Retourne la liste des challenges associés aux favoris de l'utilisateur
   } catch (error) {
