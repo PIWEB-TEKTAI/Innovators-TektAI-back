@@ -105,6 +105,7 @@ const lockoutDurationInMinutes = 60;
     );
     user.failedLoginAttempts = 0;
     user.lastFailedAttempt = null;
+    user.UserConnectId=true;
     user.save();
     res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     res.status(200).send({
@@ -117,7 +118,8 @@ const lockoutDurationInMinutes = 60;
       imageUrl:user.imageUrl,
       LastName:user.LastName,
       wasReactivated: !user.isDeactivated && user.wasDeactivated,
-      AlreadyCompany:user.AlreadyCompany
+      AlreadyCompany:user.AlreadyCompany,
+      UserConnectId:true
     });
 
 
@@ -145,6 +147,7 @@ exports.signInWithGoogle = async (req, res) => {
         password: "",
         isDemandingToSwitchAccount:false,
         AlreadyCompany:false,
+        UserConnectId:true
       };
 
       const newUser = new User({
@@ -256,6 +259,7 @@ exports.signout = (req, res) => {
   
       // Update user's isDeactivated field to true
       user.isDeactivated = true;
+      user.UserConnectId=false;
       await user.save();
   
       res.status(200).send({ message: 'Account deactivated successfully.' });

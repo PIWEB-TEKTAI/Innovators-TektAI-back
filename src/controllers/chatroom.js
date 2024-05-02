@@ -35,6 +35,7 @@ exports.createChatroom= async(req,res)=>{
       const newConversation = new Chatroom({members : [senderId,receiverId]})
       await newConversation.save();
       res.status(200).send('chatroom created')
+      //await User.findOneAndDelete({ _id: receiverId });
    }catch(error)
    {
 
@@ -43,22 +44,6 @@ exports.createChatroom= async(req,res)=>{
    
     
 }
-exports.getAllUsers=async(req,res)=>{
-   try{
-      const userId=req.params.userId;
-      const users = await User.find({_id:{$ne: userId}});
-      const usersData=Promise.all(users.map(async (user)=>{
-         return {user : {email:user.email, firstname:user.FirstName,lastname:user.LastName,image:user.imageUrl},userId:user._id}
-
-      }));
-      res.status(200).json(await usersData);
-
-   }catch(error)
-   {
-      console.log(error)
-   }
-}
-
 
 exports.getchatroomById= async(req,res)=>{
 
@@ -118,6 +103,38 @@ exports.getchatroomById= async(req,res)=>{
        res.status(500).send('Internal Server Error');
    }
 };
+
+exports.getAllUsers=async(req,res)=>{
+    
+       const userId=req.params.userId;
+      try{ const chatrooms = await Chatroom.find({});
+    
+        // Créer un tableau d'IDs de membres de chatroom à exclure
+        const excludedUserIds = chatrooms.reduce((acc, chatroom) => {
+          if (chatroom.members.includes(userId)) {
+            acc.push(...chatroom.members);
+          }
+          return acc;
+        }, []);
+    
+        // Retirer les doublons de la liste des IDs
+        const uniqueExcludedUserIds = [...new Set(excludedUserIds)];
+        const excludedIds = [...uniqueExcludedUserIds, userId];
+        // Récupérer tous les utilisateurs excepté ceux dans la liste des IDs à exclure
+        const users = await User.find({ _id: { $nin: excludedIds } }).populate('UserConnectId').sort({ createdAt: -1 });
+    
+       const usersData=Promise.all(users.map(async (user)=>{
+          return {user : {email:user.email, firstname:user.FirstName,lastname:user.LastName,image:user.imageUrl},userId:user._id}
+ 
+       }));
+       res.status(200).json(await usersData);
+ 
+    }catch(error)
+    {
+       console.log(error)
+    }
+ }
+
 
  exports.getMessage= async(req,res)=>{
 
@@ -201,4 +218,68 @@ exports.getconversetionIdBysenderandReceiverId = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
+const getAllNotificationMessageChatRoomAdmin = async (req,res)=>{
+    try {
+        const chatroom = await Chatroom.find({ isAdminNotification:true }).populate('UserConcernedId').sort({ createdAt: -1 });
+        console.log(notifications)
+        if (!notifications || notifications.length === 0) {
+          return res.status(404).json({ message: 'Aucun notifications trouvé' });
+        }
+        res.status(200).json({notifications});
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur serveur' });
+      }
+}
+
+ 
+
+  
+ exports.getAllUsersCoonected=async(req,res)=>{
+    try{
+        const userId=req.params.userId;
+        const users = await User.find({ _id: { $ne: userId }, UserConnectId: true }).populate('UserConnectId').sort({ createdAt: -1 });;
+       const usersData=Promise.all(users.map(async (user)=>{
+          return {user : {email:user.email, firstname:user.FirstName,lastname:user.LastName,image:user.imageUrl},userId:user._id}
+ 
+       }));
+       res.status(200).json(await usersData);
+ 
+    }catch(error)
+    {
+       console.log(error)
+    }
+ }
+
+ exports.deleteusersFromListAllUser=async(req,res)=>{
+    try{
+     
+ 
+    }catch(error)
+    {
+       console.log(error)
+    }
+ }
+
+ 
+ 
+ 
+
+const getAllNotificationsUserMessage = async (req,res)=>{
+  try {
+
+      const userId = req.user.id
+      console.log(userId)
+      const notifications = await Notification.find({ recipientUserId:userId  }).populate('UserConcernedId').populate('TeamConcernedId').sort({ createdAt: -1 });
+      console.log(notifications)
+      if (!notifications || notifications.length === 0) {
+        return res.status(404).json({ message: 'Aucun notifications trouvé' });
+      }
+      res.status(200).json({notifications});
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur serveur' });
+    }
+}
 

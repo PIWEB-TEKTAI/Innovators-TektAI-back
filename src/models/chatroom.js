@@ -7,6 +7,7 @@ const chatroomSchema = new mongoose.Schema({
     required: true,
    
   },
+
 })
 const ChatroomSchema = mongoose.model('Chatroom', chatroomSchema);
 

@@ -2,6 +2,11 @@ const express = require('express');
 const connectDB = require('./src/configs/db');
 const cookieParser = require('cookie-parser');
 const AboutUs = require('./src/models/aboutUs');
+const io=require('socket.io')(8000,{
+  cors:{
+    origin : 'http://localhost:5173'
+  }
+})
 const { initializeAboutUs, initializewhyUs } = require('./src/controllers/admin.controller');
 const cors = require("cors");
 const cookieSession = require("cookie-session");
@@ -28,6 +33,7 @@ const ChatroomRoute = require('./src/routes/chatroom');
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
 const { initializeSocket } = require('./socket'); 
+const { Socket } = require('socket.io');
 
 dotenv.config();
 
@@ -66,6 +72,8 @@ app.use(express.urlencoded({ extended: true }));
 
 
 initializeSocket(server);
+
+
 
 
 

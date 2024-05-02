@@ -127,6 +127,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false 
   },
+  UserConnectId: {
+    type: Boolean,
+    default: false 
+  },
   failedLoginAttempts: { type: Number, default: 0 },
   lastFailedAttempt: { type: Date, default: null },},
 
