@@ -517,32 +517,27 @@ router.put("/Unfavorite/:idChallenger/:idUser", async (req, res) => {
   const { idChallenger, idUser } = req.params; // ID du défi et de l'utilisateur
 
   try {
-    // Vérifiez si l'identifiant de l'utilisateur est correct
     const user = await User.findById(idUser);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Vérifiez si l'utilisateur a déjà ajouté ce défi à ses favoris
     const index = user.favories.indexOf(idChallenger);
-    if (index === -1) {
-      return res.status(400).json({ message: "Challenge is not in favorites" });
+
+    if (index !== -1) {
+      user.favories.splice(index, 1);
+      await user.save();
+      return res.status(200).json({ message: "Challenge removed from favorites" });
+      
+    } else {
+      return res.status(404).json({ message: "Challenge not found in favorites" });
     }
-
-    // Retirez l'identifiant du défi des favoris de l'utilisateur
-    user.favories.splice(index, 1);
-
-    // Enregistrez les modifications dans la base de données
-    await user.save();
-
-    res.status(200).json({ message: "Challenge removed from favorites" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 router.get("/favorites/:idUser", authMiddleware , async (req, res) => {
   const { idUser } = req.params; // ID de l'utilisateur
