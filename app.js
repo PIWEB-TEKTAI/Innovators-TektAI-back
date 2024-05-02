@@ -24,6 +24,9 @@ const notifRouter = require('./src/routes/notifications');
 const challengeRoute = require('./src/routes/challengeRoute')
 const submissionRoute = require('./src/routes/submissionRoute')
 const teamRoutes = require('./src/routes/teamRoute');
+const converstationRoutes = require('./src/routes/converstationRoute');
+const messageRoutes = require('./src/routes/messageRoute');
+
 
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
@@ -95,8 +98,9 @@ app.use("/notif" ,authMiddleware, notifRouter);
 app.use("/challenge", challengeRoute);
 app.use("/challenges" , Challenge);
 app.use("/submissions",authMiddleware,submissionRoute);
-app.use('/teams',authMiddleware, teamRoutes);
-
+app.use('/teams', teamRoutes);
+app.use('/conv', converstationRoutes);
+app.use('/message', messageRoutes);
 
 
 

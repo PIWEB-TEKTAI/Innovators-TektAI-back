@@ -1,36 +1,103 @@
 const mongoose = require('mongoose');
-const User = require('../models/User'); 
 
 const ChallengeSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId, 
   title: String,
-  description: String,
-  price: String,
-  image: String,
+
+  description:String,
+
+  problematic:String,
+
+  amount:String,
+
+  visibility:String,
+
   status: {
     type: String,
     enum: ['open', 'completed', 'archived'],
-    default: 'open'
+    default: 'open' // You can set a default value if needed
   },
   startDate: {
     type: Date,
-    default: Date.now
+    required:true
   },
   endDate: {
     type: Date,
     required: true
   },
   createdBy: {
-    type: String,
-    ref: User,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
-  targetedSkills: [String],
-  dataset: [{
-    name: String,
-    description: String,
-    fileUrl: String,
-  }],
+  targetedSkills: [String], 
+  
+  fileUrl:String,
+  
+
+  rankingMode: {
+    automated:Boolean,
+    expert:Boolean,
+  },
+
+  numberParticipants:{
+      nbrTeam:String,
+      nbrSolo:String
+  },
+
+  bareme: {
+    output:Boolean,
+    presentation:Boolean,
+    codeSource:Boolean,
+    dataSet:Boolean,
+    readmeFile:Boolean,
+    rapport:Boolean,
+    Demo:Boolean
+  },
+
+
+  prizes:{
+     prizeName:String,
+     prizeDescription:String
+  },
+
+  recruitement:{
+     positionTitle:String,
+     jobDescription:String
+  },
+  
+  freelance:{
+    projectTitle:String,
+    projectDescription:String
+ },
+
+  internship:{
+    internshipTitle:String,
+    internshipDescription:String,
+    duration:String
+  },
+
+  image:String,
+
+  participations: {
+    soloParticipants: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    soloParticipationRequests: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    TeamParticipants: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    }],
+    TeamParticipationRequests: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    }]
+  } 
 });
+
+
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);

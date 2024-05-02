@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/User'); // Import your User model
+const validateAccountEmail = require('../utils/validateAccountEmail')
+const authMiddleware = require('../middlewares/authMiddleware');
+
+
 var bcrypt = require("bcryptjs");
 const twilio = require('twilio');
 const accountSid = 'AC2d8da5466e64b11d5eade89b932c7ead';
@@ -141,26 +145,18 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
 router.put('/:email/updateState', async (req, res) => {
   try {
     const email = req.params.email;
-
-    const newState = req.body.state;
+    const newState = req.body.state; 
 
     const user = await User.findOneAndUpdate({ email: email }, { $set: { state: newState } }, { new: true });
-
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
-    console.log('twilioooooooooooooooooooooooooo');
 
-
-    // Send SMS notification
-    const message = await client.messages.create({
-      body: 'Welcome to Tektai! Your account has been validated by the admin. You can now connect.',
-      from: '+12517148512', // Correct format for from number
-      to: user.phone // Correct format for to number (no spaces)
-    });
-
-    console.log('SMS sent:', message.sid);
-
+    if(newState === 'validated'){
+      const template = 'accountValidated'     
+      await validateAccountEmail(user.email , "Your Account is Validated!", template , user.FirstName , user.LastName);
+    }
+    
     res.status(200).json({ message: 'user state changes', user: user });
   } catch (error) {
     console.error(error);
@@ -345,6 +341,8 @@ router.get('/validate/:email', function (req, res, next) {
       res.status(500).json({ error: "Erreur Interne du Serveur" });
     });
 });
+
+
 // PUT to update user information by email  (additional endpoint for editing user info)
 router.put('/update/:email', function (req, res, next) {
   const email = req.params.email;

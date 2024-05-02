@@ -22,6 +22,18 @@ const NotificationsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Team' 
   },
+  ChallengeConcernedId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Challenge' 
+  },
+  SubmittionConcernedId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Submission' 
+  }, 
+  TeamInvitation: {
+    type: Boolean,
+    default: false 
+  },
   isAdminNotification: {
     type: Boolean,
     default: false 

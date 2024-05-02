@@ -33,11 +33,12 @@ exports.createTeam = async (req, res) => {
     for (const challengerId of selectedChallengers) {
       await io.emit("addInvitationRequest", { firstname: leaderChallenger.FirstName, lastname: leaderChallenger.LastName, idUser: challengerId, content: `has sent you an invitation to join ${name}` });
       await Notification.create({
-        title: "Invitation added",
-        content: `has sent you an invitation to join ${name}`,
-        recipientUserId: challengerId,
-        UserConcernedId: leaderChallenger._id,
-        isAdminNotification: false
+          title: "Invitation added",
+          content: `has sent you an invitation to join ${name}`,
+          recipientUserId: challengerId,
+          UserConcernedId: leaderChallenger._id,
+          TeamInvitation:true,
+          isAdminNotification: false
       });
     }
 
