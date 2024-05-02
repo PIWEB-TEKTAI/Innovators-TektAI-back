@@ -11,19 +11,27 @@ process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(__dirname, 'tektai-crn9-1
 const { SessionsClient } = require('dialogflow');
 const sessionClient = new SessionsClient();
 
+const { v4: uuidv4 } = require('uuid');
+
+// Function to generate a temporary session ID
+const generateTempSessionId = () => {
+  return uuidv4(); // Generates a random UUID
+};
 
 // Create a new session client
 exports.chatbot = async (req, res) => {
   const { message } = req.body;
 
-  const userId = req.user ? req.user.id : null;
+  // Check if there's a session ID in the request, otherwise generate a temporary one
+  const userId = req.user ? req.user.id : req.cookies.tempSessionId || generateTempSessionId();
 
-  if (!userId) {
-    return res.status(401).json({ error: 'User not authenticated' });
+  // If user is not authenticated, set a temporary session ID in the cookie
+  if (!req.user && !req.cookies.tempSessionId) {
+    res.cookie('tempSessionId', userId, { maxAge: 86400000, httpOnly: true }); // Set cookie for 24 hours
   }
 
-  // Ensure sessionPath is constructed properly
-  const sessionPath = sessionClient.sessionPath(projectId, userId); // Use sessionPath method instead
+  // Construct sessionPath using the session ID
+  const sessionPath = sessionClient.sessionPath(projectId, userId);
 
   const request = {
     session: sessionPath,
@@ -44,6 +52,7 @@ exports.chatbot = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 
 exports.profile = async (req, res) => {
