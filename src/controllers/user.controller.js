@@ -173,6 +173,8 @@ exports.getAllChallengers = async (req, res) => {
   }
 };
 
+
+
 exports.getUserPreferences = async (req, res) => {
   const userId = req.user.id;
 

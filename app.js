@@ -21,6 +21,9 @@ const notifRouter = require('./src/routes/notifications');
 const challengeRoute = require('./src/routes/challengeRoute')
 const submissionRoute = require('./src/routes/submissionRoute')
 const teamRoutes = require('./src/routes/teamRoute');
+const Message = require('./src/models/message');
+const Chatroom = require('./src/models/chatroom');
+const ChatroomRoute = require('./src/routes/chatroom');
 
 const dotenv = require('dotenv');
 const authMiddleware = require('./src/middlewares/authMiddleware');
@@ -93,6 +96,7 @@ app.use("/challenge", challengeRoute);
 app.use("/challenges" , Challenge);
 app.use("/submissions",authMiddleware,submissionRoute);
 app.use('/teams', teamRoutes);
+app.use('/chatroom',ChatroomRoute);
 
 
 
