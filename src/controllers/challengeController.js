@@ -132,6 +132,7 @@ exports.addChallenge = async (req, res) => {
 
 
 
+
 exports.viewDetailschallenge = async (req, res) => {
   const challengeId = req.params.id;
        
@@ -348,7 +349,7 @@ exports.acceptParticipation = async (req, res) => {
       const team = await Team.findById(userId);
     challenge.participations.TeamParticipants.push(team);
 
-    /*await io.emit("AcceptParticipationTeamRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:`has accept your participation request for your team ${team.name}`}); 
+    await io.emit("AcceptParticipationTeamRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:`has accept your participation request for your team ${team.name}`}); 
     const notifications = await Notification.create({
         title:"Accept Participation Request",
         content:`has accept your participation request for your team ${team.name}`,
@@ -356,7 +357,7 @@ exports.acceptParticipation = async (req, res) => {
         UserConcernedId:challenge.createdBy,
         ChallengeConcernedId:challengeId,
         isAdminNotification:false
-    })*/
+    })
 
     await challenge.save();
 
@@ -368,6 +369,7 @@ exports.acceptParticipation = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 exports.declineParticipation = async (req, res) => {

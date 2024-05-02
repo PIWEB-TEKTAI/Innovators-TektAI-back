@@ -8,7 +8,8 @@ const teamInvitationMail = async (toEmail, subject, template, teamLink,teamName,
     service: 'gmail',
     auth: {
       user: 'tektaitektai7@gmail.com',
-      pass: 'mhjk pgex okip mxtu'
+      pass: 'jiva rlyt bqba ozzb'
+
     }
   });
 

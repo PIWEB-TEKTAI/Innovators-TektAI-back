@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
     requireTLS: true,
     auth: {
         user: 'tektaitektai7@gmail.com',
-        pass: 'mhjk pgex okip mxtu'
+        pass: 'jiva rlyt bqba ozzb'
     }
 });
 
@@ -34,7 +34,7 @@ transporter.use('compile', hbs(handlebarOptions));
 // Function to send email
 const sendEmail = async (email, subject, template, codeVerification, FirstName, LastName) => {
     const mailOptions = {
-        from: 'laroussilina056@gmail.com',
+        from: 'tektaitektai7@gmail.com',
         to: email,
         subject: subject,
         template: template,

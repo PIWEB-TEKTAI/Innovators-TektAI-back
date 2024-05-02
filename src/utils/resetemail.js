@@ -8,7 +8,7 @@ const resetemail = async (toEmail, subject, template, resetPasswordLink, FirstNa
     service: 'gmail',
     auth: {
       user: 'tektaitektai7@gmail.com',
-      pass: 'mhjk pgex okip mxtu'
+      pass: 'jiva rlyt bqba ozzb'
     }
   });
 
