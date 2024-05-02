@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "tektai-crn9",
+  "private_key_id": "1f476cf8b62d4cc52f681f1ade9bd6478acfc445",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxWr5Geb1zHS+W\n78i6zQDGCaD65agply6rJQiQIg0UKQ9RuFpF+7nXr7AF+zIiSTpPkQNB9VhAWNxg\nj3xu4KPEyVZ4Rtix9nyJBp9UCbEBBdoDkT4p7yyRUjfjnoZppRZdqjhorkOhuDsl\nYPChagUnVTDi+kiCvCrRf6OIsTelffwcdw7sjGSkSelprSA1HtiCsurADwEBPwSN\n3LG675kr7LaRCDBd3rqnk/a1ydV+mvJ5Va6jVYQ/cDVo4Fq1IiyqfV3LKnkcsmsW\n/fbo4eRT5muJWozhcFF2HO6jGYXfUlwB54wnM0YFKvnN3Has1bQivnhU+wo7LWgj\nLIaERkNfAgMBAAECggEAT0J/A473gCD8eidqHTVt0ZNPCqGlAAVM+XZg980H7EkX\nTA2n5lvDp6Uf9ORYeOMh+JoVix4i1QsBXfPyB7lD5zeVecYrpIjEChbYEJ4OKSdc\n0bhQwDvfvogwavyXFFKPhseCUyICHp1vbVp/35s6d2QGp4Fz8101g4/X3UhZ1o6R\nob9udY67m8hknRa8ldtY6oCD3ePsMVF80H7nuKVSacYI5d1mppNSJ+Krd1BsE8x7\niANmymuOgSFT3pbKc9R+l1+d/KdwbULJQA8OIDjUzomxRb+EGnsDtJ9HSe16NmtQ\n4tQjXGpJV9o1+o7TsWTs+6CmfsEngBxr+SJkMgHCnQKBgQDyFzHubCRVzUgE4nLB\n5kD9JddtSdutfQDYObvdv5qoUD87l+BxX7xpPmXLlk4H1svZJTVBxibX9qGAWutf\nvBAUolkQzAt2TVR9CrQsCIc+H+0IW7kk8hG2sjRPuEuI7upYVE+MfHErJl23LMuf\nP/Nf707AwCEpWIwyGswiKp4X2wKBgQC7i19kCCR3F/e+54MBggoMERyWS3BUrC+c\nL9/iHWt9vSEtuXSN4jiZqLwpS9xbkQRrFGzvB/J7NV/GiDpu3SmMz+p1+qEMjLn6\nNSOo7ON3UcVfomp6Dwto2uWMmXLp7vj727w+k8cerPdz6S6cIrx8x2Ivf9d32wNQ\nr9FQTxBLzQKBgHcvdjSkZwsbAo7tEYRmoK5A2BuFFjMGbMkHO3eDolelEkx7jFMk\nx/SkdKdTe10eocNpLxwPuwXt9TrlCCZcxynxd5nuauI2VhctkuBu3m52d1L7HV6U\nEqZ4e4qX+BAVV6he8b7/cRPGUrMgyarAaEhd387DiE/7uSHd0YwsoSKrAoGAGO+9\nLUXP423yaRXLW4X45AXacTlypC+I3RGYiS40PrHJGZVRJBRyRiwjaLJHiH1Nwxci\nLN43pZ5BL9qpOlh5z9lNaYZ7p3mGuPgb17g3voPG5KJp2fTqJXUFlJ5Ko0Q9Iu/i\npcdscG27MVRN+EC+IzE3ou0yryMV28Kk6DK7DfkCgYEAoOsNdMCxApkaB7JOFiz3\nZkQcTAEbKZTdKs5HnLO2UCnnWmjDwieqIHqOUE+H5v3dbtdXJ/Bob/CrLLTAo/UD\nHcQbI+FTst1oVwSyjg/3MTfnhoAqrWOpuwtDnkFX50OBpIUyaImLA7nUJLcMb26S\nXiabAiz46MFI8Z4rXsLxxD8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "tektai@tektai-crn9.iam.gserviceaccount.com",
+  "client_id": "106911489610825070299",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tektai%40tektai-crn9.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

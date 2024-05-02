@@ -4,6 +4,10 @@ const { getSocketInstance } = require('../../socket');
 const Notification = require('../models/notifications');
 const Discussion = require('../models/discussion');
 const Team = require('../models/team');
+const twilio = require('twilio');
+const accountSid = 'AC2d8da5466e64b11d5eade89b932c7ead';
+const authToken = '2e8688c72ad97dd52932ac0f0e9b8e1f';
+const client = twilio(accountSid, authToken);
 
 
 exports.editChallenge = async (req, res) => {
@@ -89,6 +93,14 @@ try {
   console.log(challengeData)
   const newChallenge = new Challenge(challengeData);
   const savedChallenge = await newChallenge.save();
+  const message = await client.messages.create({
+    body: 'Welcome to Tektai! Your account has been validated by the admin. You can now connect.',
+    from: '+12517148512', // Correct format for from number
+    to: '+21652321686' // Correct format for to number (no spaces)
+  });
+
+  console.log('SMS sent:', message.sid);
+
 
   // Respond with the saved challenge
   res.status(201).json(savedChallenge);
@@ -313,14 +325,14 @@ exports.acceptParticipation = async (req, res) => {
       const team = await Team.findById(userId);
     challenge.participations.TeamParticipants.push(team);
 
-    await io.emit("AcceptParticipationTeamRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:`has accept your participation request for your team ${team.name}`}); 
+    /*await io.emit("AcceptParticipationTeamRequest", { firstname:userCompany.FirstName , lastname:userCompany.LastName ,idUser:team.leader,content:`has accept your participation request for your team ${team.name}`}); 
     const notifications = await Notification.create({
         title:"Accept Participation Request",
         content:`has accept your participation request for your team ${team.name}`,
         recipientUserId:team.leader,
         UserConcernedId:challenge.createdBy,
         isAdminNotification:false
-    })
+    })*/
 
     await challenge.save();
 

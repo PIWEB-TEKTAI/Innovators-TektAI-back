@@ -8,6 +8,8 @@ const cookieSession = require("cookie-session");
 const path = require('path');
 const axios = require('axios')
 const fs = require('fs');
+const { WebhookClient } = require('dialogflow-fulfillment');
+
 
 //routes 
 var authRouter = require('./src/routes/auth.route');
@@ -93,7 +95,7 @@ app.use("/notif" ,authMiddleware, notifRouter);
 app.use("/challenge", challengeRoute);
 app.use("/challenges" , Challenge);
 app.use("/submissions",authMiddleware,submissionRoute);
-app.use('/teams', teamRoutes);
+app.use('/teams',authMiddleware, teamRoutes);
 
 
 
@@ -120,6 +122,30 @@ app.post("/verify-captcha", async (req, res) => {
 });
 
 
+app.post('/webhook', (req, res) => {
+  const agent = new WebhookClient({ request: req, response: res });
+
+  function greetingIntentHandler(agent) {
+    agent.add('Hello! How can I assist you today?');
+  }
+
+  function faqIntentHandler(agent) {
+    agent.add('TektAI provides a dynamic space for industry-driven data science challenges.');
+    agent.add('You can submit real-world challenges, collaborate with developer teams, and more.');
+  }
+
+  function helpIntentHandler(agent) {
+    agent.add('Of course! What do you need help with?');
+  }
+
+  // Map Dialogflow intents to corresponding handler functions
+  let intentMap = new Map();
+  intentMap.set('Greeting', greetingIntentHandler);
+  intentMap.set('FAQ', faqIntentHandler);
+  intentMap.set('Help', helpIntentHandler);
+
+  agent.handleRequest(intentMap);
+});
 
 
 app.get('/uploads/:fileName', (req, res) => {

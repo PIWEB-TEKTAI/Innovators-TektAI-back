@@ -2,6 +2,58 @@ const config = require("../configs/auth.config");
 const User = require("../models/User");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+const express = require('express');
+const router = express.Router();
+
+const projectId = 'tektai-crn9'; // Replace with your Dialogflow project ID
+const path = require('path');
+process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(__dirname, 'tektai-crn9-1f476cf8b62d.json');
+const { SessionsClient } = require('dialogflow');
+const sessionClient = new SessionsClient();
+
+const { v4: uuidv4 } = require('uuid');
+
+// Function to generate a temporary session ID
+const generateTempSessionId = () => {
+  return uuidv4(); // Generates a random UUID
+};
+
+// Create a new session client
+exports.chatbot = async (req, res) => {
+  const { message } = req.body;
+
+  // Check if there's a session ID in the request, otherwise generate a temporary one
+  const userId = req.user ? req.user.id : req.cookies.tempSessionId || generateTempSessionId();
+
+  // If user is not authenticated, set a temporary session ID in the cookie
+  if (!req.user && !req.cookies.tempSessionId) {
+    res.cookie('tempSessionId', userId, { maxAge: 86400000, httpOnly: true }); // Set cookie for 24 hours
+  }
+
+  // Construct sessionPath using the session ID
+  const sessionPath = sessionClient.sessionPath(projectId, userId);
+
+  const request = {
+    session: sessionPath,
+    queryInput: {
+      text: {
+        text: message,
+        languageCode: 'en-US',
+      },
+    },
+  };
+
+  try {
+    const responses = await sessionClient.detectIntent(request);
+    const result = responses[0].queryResult;
+    res.json({ response: result.fulfillmentText });
+  } catch (error) {
+    console.error('Error communicating with Dialogflow:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 
 exports.profile = async (req, res) => {
   try {
@@ -20,14 +72,14 @@ exports.profile = async (req, res) => {
     console.error('Error finding user by ID:', error);
     return res.status(500).send({ message: 'Internal Server Error' });
   }
-  };
+};
 
 exports.imageUpload = async (req, res) => {
   const userId = req.user.id;
   const userObject = req.file
     ? {
-        imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
-      }
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+    }
     : { ...req.body };
   const user = await User.findByIdAndUpdate(
     userId,
@@ -46,7 +98,7 @@ exports.updatedUser = async (req, res) => {
   let updatedUserData = req.body;
 
   try {
-    
+
     const updatedUser = await User.findByIdAndUpdate(userId, updatedUserData, { new: true });
 
     if (!updatedUser) {
@@ -103,9 +155,12 @@ exports.switchAccount = async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $set: { 'company': updatedCompanyData,
-      isDemandingToSwitchAccount: true
-     } },
+      {
+        $set: {
+          'company': updatedCompanyData,
+          isDemandingToSwitchAccount: true
+        }
+      },
 
       { new: true }
     );
@@ -124,15 +179,15 @@ exports.directlySwitchAccount = async (req, res) => {
   const userId = req.user.id;
   try {
     const user = await User.findById(userId);
-    if(user.role == "challenger"){
+    if (user.role == "challenger") {
       newRole = "company"
-    }else if(user.role == "company"){
+    } else if (user.role == "company") {
       newRole = "challenger"
     }
     if (!user) {
       // Handle case where user is not found
       console.error('User not found');
-      return res.status(404).send({message:"not found"}); // or throw an error, depending on your use case
+      return res.status(404).send({ message: "not found" }); // or throw an error, depending on your use case
     }
 
     // Update the user's role
@@ -232,3 +287,8 @@ exports.updateCompanyPreferences = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
+
+
+
