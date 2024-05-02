@@ -7,6 +7,8 @@ router.post('/:challengeId/addSubmission',multer, submissionController.addSubmis
 router.get('/get/:id', submissionController.getSubmissionById);
 router.post('/editSubmission/:id',multer, submissionController.editSubmission);
 router.get('/:challengeId/submissions', submissionController.getSubmissionsByChallengeId);
+router.post('/updateSubmissionScore/:id',multer, submissionController.updateSubmissionScore);
+
 router.get('/get/all/submission', submissionController.getListChallengeChallenger);
 router.delete('/delete/:id', submissionController.DeleteSubmission);
 router.get('/AllSubmissions',submissionController.AllSubmissions);

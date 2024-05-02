@@ -6,6 +6,30 @@ const User = require("../models/User");
 
 const { getSocketInstance } = require("../../socket");
 
+exports.updateSubmissionScore = async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const { score } = req.body; 
+
+    const submission = await Submission.findById(id);
+
+    if (!submission) {
+      return res.status(404).json({ error: 'Submission not found' });
+    }
+
+    submission.status = "approved";
+    submission.score = score;
+
+    await submission.save();
+
+    res.status(200).json(submission);
+  } catch (error) {
+    console.error('Error updating submission score:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 exports.addSubmission = async (req, res) => {
   try {
     const io = getSocketInstance();

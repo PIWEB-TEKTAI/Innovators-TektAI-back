@@ -60,7 +60,7 @@ const SubmissionSchema = new mongoose.Schema({
   },
   score: {
     type: Number,
-    default: 0
+    default: 0 // Assuming the default score is 0
   }
 });
 
