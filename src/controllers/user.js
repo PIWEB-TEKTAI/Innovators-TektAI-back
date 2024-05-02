@@ -5,11 +5,13 @@ const sendEmail = require('../utils/sendEmail')
 const Token = require('../models/token')
 const resetemail = require('../utils/resetemail');
 const contactemail = require('../utils/contactemail');
+const Team = require('../models/team');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const { getSocketInstance } = require('../../socket');
+const { Template } = require('ejs');
 
 
 function generateVerificationCode() {
@@ -30,7 +32,8 @@ const register = async (req,res) =>{
         res.status(400).json({msg: "This email address is already in use. Please use a different email."});
 
     }else{
-        const user = new User ({
+ 
+      const user = new User ({
             ...req.body,
             password:cryptedPassword,
             company: { 
@@ -39,12 +42,24 @@ const register = async (req,res) =>{
                 email: companyEmail,
               }
         })
+        
         if (req.body.role === 'challenger') {
           user.AlreadyCompany = false
         }else if (req.body.role === 'company') {
           user.AlreadyCompany = true
         } 
-        const createdUser = user.save();
+        const createdUser = await user.save();
+        const invitedTeams = await Team.find({ emailInvitations: { $in: [createdUser.email] } });
+        console.log(invitedTeams);
+        if (invitedTeams.length > 0) {
+          for (const team of invitedTeams) {
+            team.emailInvitations = team.emailInvitations.filter(email => email !== createdUser.email);
+            team.invitations.push(createdUser._id);
+            await team.save();
+          }
+          createdUser.teamInvitationSent =  true;
+          await createdUser.save();
+        }
         if(createdUser){
           try{
             const io = getSocketInstance();

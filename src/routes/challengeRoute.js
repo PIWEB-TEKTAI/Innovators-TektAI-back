@@ -1,7 +1,7 @@
 const express = require("express")
 const challengeController = require('../controllers/challengeController')
 const router = express.Router();
-const multer = require('../middlewares/multerConfig2')
+const multer = require('../middlewares/multerConfig3')
 const authMiddleware = require('../middlewares/authMiddleware');
 
 router.put('/edit/:id',authMiddleware, multer,challengeController.editChallenge);

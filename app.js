@@ -7,6 +7,7 @@ const cors = require("cors");
 const cookieSession = require("cookie-session");
 const path = require('path');
 const axios = require('axios')
+const fs = require('fs');
 
 //routes 
 var authRouter = require('./src/routes/auth.route');
@@ -121,9 +122,35 @@ app.post("/verify-captcha", async (req, res) => {
 
 
 
+app.get('/uploads/:fileName', (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(__dirname, 'uploads', fileName);
 
+  if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
 
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+  } else {
+      res.status(404).send('File not found');
+  }
+});
 
+app.get('/images/:fileName', (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(__dirname, 'uploads', fileName);
+
+  if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+  } else {
+      res.status(404).send('File not found');
+  }
+});
 // Default route
 app.use('', async function (req, res) {
   res.json({ message: "la réponse du serveur" });

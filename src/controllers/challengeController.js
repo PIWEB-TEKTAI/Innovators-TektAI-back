@@ -276,7 +276,7 @@ exports.acceptParticipation = async (req, res) => {
   try {
     const io = getSocketInstance();
     const challenge = await Challenge.findById(challengeId);
-    const userCompany = await User.findById();
+    const userCompany = await User.findById(userId);
 
     if (!challenge) {
       return res.status(404).json({ message: 'Challenge not found' });

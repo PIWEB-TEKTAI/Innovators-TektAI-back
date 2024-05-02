@@ -27,9 +27,10 @@ const lockoutDurationInMinutes = 60;
     if(user.state=='blocked'){
       return res.status(401).send({ message: 'you are blocked for some reasons' });
     }
- if(user.state=='archive'){
+    if(user.state=='archive'){
       return res.status(401).send({ message: 'User Not found' });
     }
+    
 
     if (!passwordIsValid) {
       const now = new Date();
@@ -103,22 +104,46 @@ const lockoutDurationInMinutes = 60;
         expiresIn: 86400, // 24 hours
       }
     );
-    user.failedLoginAttempts = 0;
-    user.lastFailedAttempt = null;
-    user.save();
+   
     res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    res.status(200).send({
-      _id:user._id,
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      token: token,
-      FirstName:user.FirstName,
-      imageUrl:user.imageUrl,
-      LastName:user.LastName,
-      wasReactivated: !user.isDeactivated && user.wasDeactivated,
-      AlreadyCompany:user.AlreadyCompany
-    });
+    if (user.teamInvitationSent) {
+      user.teamInvitationSent = false;
+      user.failedLoginAttempts = 0;
+      user.lastFailedAttempt = null;
+      await user.save();
+      return res.status(200).send({
+        _id: user._id,
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        FirstName: user.FirstName,
+        imageUrl: user.imageUrl,
+        LastName: user.LastName,
+        token: null, // No need to send token
+        wasReactivated: !user.isDeactivated && user.wasDeactivated,
+        AlreadyCompany: user.AlreadyCompany,
+        redirect: '/teams/myInvitations' 
+      });
+    }else{
+      user.failedLoginAttempts = 0;
+      user.lastFailedAttempt = null;
+      user.save();
+      res.status(200).send({
+        _id:user._id,
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        token: token,
+        FirstName:user.FirstName,
+        imageUrl:user.imageUrl,
+        LastName:user.LastName,
+        wasReactivated: !user.isDeactivated && user.wasDeactivated,
+        AlreadyCompany:user.AlreadyCompany,
+        redirect: null 
+  
+      });
+    }
+    
 
 
   } catch (err) {

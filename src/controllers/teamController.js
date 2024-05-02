@@ -3,10 +3,11 @@ const Notification = require('../models/notifications');
 const { getSocketInstance } = require('../../socket');
 const User = require('../models/User');
 
+const teamInvitationMail = require('../utils/teamInvitationMail');
 
 exports.createTeam = async (req, res) => {
   try {
-    const { name, selectedChallengers,private } = req.body;
+    const { name, selectedChallengers, private, emailInvitation } = req.body;
     const io = getSocketInstance();
     const leader = req.userId; // Assuming the middleware sets the user ID in req.userId
 
@@ -14,23 +15,31 @@ exports.createTeam = async (req, res) => {
     if (existingTeam) {
       return res.status(400).json({ message: 'You have already created another team. You can only create one team as a leader' });
     }
- 
-    const team = new Team({ name, invitations: selectedChallengers,leader,private:private });
+
+    const team = new Team({ name, invitations: selectedChallengers, leader, private, emailInvitations: emailInvitation });
     await team.save();
+    const leaderChallenger = await User.findById(leader);
+
+    // Array to store all the email invitation promises
+    const emailPromises = emailInvitation.map(async (email) => {
+      const teamLink = `http://localhost:5173/teams/myInvitations`;
+      const template = 'TeamInvitation';
+      return teamInvitationMail(email, 'Invitation to Join '+team.name+" team", template, teamLink, team.name, leaderChallenger.FirstName +" "+ leaderChallenger.LastName);
+    });
+
+    // Wait for all email invitation promises to resolve
+    await Promise.all(emailPromises);
 
     for (const challengerId of selectedChallengers) {
-      const leaderChallenger = await User.findById(leader);
-  
       await io.emit("addInvitationRequest", { firstname: leaderChallenger.FirstName, lastname: leaderChallenger.LastName, idUser: challengerId, content: `has sent you an invitation to join ${name}` });
-  
       await Notification.create({
-          title: "Invitation added",
-          content: `has sent you an invitation to join ${name}`,
-          recipientUserId: challengerId,
-          UserConcernedId: leaderChallenger._id,
-          isAdminNotification: false
+        title: "Invitation added",
+        content: `has sent you an invitation to join ${name}`,
+        recipientUserId: challengerId,
+        UserConcernedId: leaderChallenger._id,
+        isAdminNotification: false
       });
-  }
+    }
 
     res.status(201).json({ message: 'Team created successfully', team });
   } catch (error) {
@@ -39,7 +48,30 @@ exports.createTeam = async (req, res) => {
   }
 };
 
+exports.inviteMembers = async (req, res) => {
+  try {
+    const { teamId, userIds, emailInvitations } = req.body;
 
+    const team = await Team.findByIdAndUpdate(
+      teamId,
+      { $addToSet: { members: { $each: userIds }, invitations: { $each: userIds }, emailInvitations } },
+      { new: true }
+    ).populate('leader');
+
+    // Array to store all the email invitation promises
+    const emailPromises = emailInvitations.map(async (email) => {
+      const teamLink = `http://localhost:5173/teams/myInvitations`;
+      const template = 'TeamInvitation';
+      return teamInvitationMail(email, 'Invitation to Join '+team.name+" team", template, teamLink, team.name, team.leader.FirstName +" "+ team.leader.LastName);
+    });
+    await Promise.all(emailPromises);
+
+    res.json({ success: true, team });
+  } catch (error) {
+    console.error('Error inviting members:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
 exports.editTeam = async (req, res) => {
   try {
@@ -119,11 +151,23 @@ exports.getMyTeams = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.findTeamByLeader = async (req, res) => {
+  try {
+    const { leaderId } = req.params;
+    const team = await Team.findOne({ leader: leaderId }).populate('requests');
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+    res.status(200).json({ team });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 exports.getTeamById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const team = await Team.findById(id).populate('leader').populate('members').populate('invitations');
+    const team = await Team.findById(id).populate('leader').populate('members').populate('invitations').populate('requests');
     if (!team) {
       return res.status(404).json({ message: 'Team not found' });
     }
@@ -136,7 +180,7 @@ exports.getTeamById = async (req, res) => {
 exports.joinTeamRequest = async (req, res) => {
   try {
     const { teamId } = req.params;
-    const { userId } = req.body;
+    const  userId  = req.userId;
     const team = await Team.findById(teamId);
     if (!team) {
       return res.status(404).json({ message: 'Team not found' });
@@ -151,10 +195,23 @@ exports.joinTeamRequest = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.getJoinRequests = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const team = await Team.findById(teamId).populate('requests');
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+    res.status(200).json({ requests: team.requests });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 exports.acceptJoinRequest = async (req, res) => {
     try {
       const { teamId, userId } = req.params;
+      console.log(req.params)
       const team = await Team.findById(teamId);
       if (!team) {
         return res.status(404).json({ message: 'Team not found' });
@@ -165,7 +222,7 @@ exports.acceptJoinRequest = async (req, res) => {
       // Add user to team members
       team.members.push(userId);
       // Remove user from requests
-      team.requests = team.requests.filter(request => request !== userId);
+      team.requests = team.requests.filter(request => request.toString() !== userId);
       await team.save();
       res.status(200).json({ message: 'Request accepted successfully' });
     } catch (error) {
@@ -249,7 +306,7 @@ exports.acceptJoinRequest = async (req, res) => {
         return res.status(400).json({ message: 'Request does not exist' });
       }
       // Remove user from requests
-      team.requests = team.requests.filter(request => request !== userId);
+      team.requests = team.requests.filter(request => request.toString() !== userId);
       await team.save();
       res.status(200).json({ message: 'Request declined successfully' });
     } catch (error) {

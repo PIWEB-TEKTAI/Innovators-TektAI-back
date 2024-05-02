@@ -40,6 +40,12 @@ const teamSchema = new mongoose.Schema({
     type: Boolean,
     default: false 
   },
+  emailInvitations:[
+     {
+      type:String
+     }
+  ],
+
   
 });
 

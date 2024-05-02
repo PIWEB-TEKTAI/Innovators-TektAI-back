@@ -128,7 +128,14 @@ const userSchema = new mongoose.Schema({
     default: false 
   },
   failedLoginAttempts: { type: Number, default: 0 },
-  lastFailedAttempt: { type: Date, default: null },},
+  lastFailedAttempt: { type: Date, default: null },
+  teamInvitationSent:
+  {
+    type:Boolean,
+    default:false
+  }
+},
+  
 
 { timestamps: true });
 
