@@ -345,6 +345,103 @@ exports.acceptParticipation = async (req, res) => {
 };
 
 
+
+
+exports.acceptParticipationtitle = async (req, res) => {
+  const { challengeTitle, userId } = req.params; // Change challengeId to challengeTitle
+  const type = req.body.type;
+  try {
+    const io = getSocketInstance();
+    const challenge = await Challenge.findOne({ title: challengeTitle }); // Find challenge by title instead of ID
+    const userCompany = await User.findById();
+
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge not found' });
+    }
+
+    // Check if the user is in the participation requests
+    if (type === "Request") {
+      const index = challenge.participations.soloParticipationRequests.findIndex(request => request.toString() === userId);
+      if (index === -1) {
+        return res.status(404).json({ message: 'User not found in participation requests' });
+      }
+      // Move user from participation requests to participants
+      const user = challenge.participations.soloParticipationRequests.splice(index, 1)[0];
+      challenge.participations.soloParticipants.push(user);
+
+      const notifications = await Notification.create({
+        title: "Accept Participation Request",
+        content: "has accept your participation request",
+        recipientUserId: user,
+        isAdminNotification: false
+      });
+
+      await challenge.save();
+
+      return res.status(200).json({ message: 'Participation request accepted successfully' });
+    } else if (type === "TeamRequest") {
+      const index = challenge.participations.TeamParticipationRequests.findIndex(request => request.toString() === userId);
+      if (index === -1) {
+        return res.status(404).json({ message: 'Team not found in participation requests' });
+      }
+      // Move user from participation requests to participants
+      const teamId = challenge.participations.TeamParticipationRequests.splice(index, 1)[0];
+      const team = await Team.findById(userId);
+      if (!team) {
+        return res.status(404).json({ message: 'Team not found' });
+      }
+      challenge.participations.TeamParticipants.push(team);
+
+      const notifications = await Notification.create({
+        title: "Accept Participation Request",
+        content: "has accept your participation request",
+        recipientUserId: team.leader,
+        UserConcernedId: challenge.createdBy,
+        isAdminNotification: false
+      });
+
+      await challenge.save();
+
+      return res.status(200).json({ message: 'Participation request accepted successfully' });
+    } else {
+      return res.status(400).json({ message: 'Invalid participation request type' });
+    }
+  } catch (error) {
+    console.error('Error accepting participation request:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+exports.declineParticipationtitle = async (req, res) => {
+  const { challengeTitle, userId } = req.params;
+
+  try {
+    const challenge = await Challenge.findOne({ title: challengeTitle });
+
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge not found' });
+    }
+
+    // Check if the user is in the participation requests
+    const index = challenge.participations.soloParticipationRequests.findIndex(request => request.toString() === userId);
+    if (index === -1) {
+      return res.status(404).json({ message: 'User not found in participation requests' });
+    }
+
+    // Remove the user from participation requests
+    challenge.participations.soloParticipationRequests.splice(index, 1)[0];
+
+    await challenge.save();
+
+    res.status(200).json({ message: 'Participation request declined successfully' });
+  } catch (error) {
+    console.error('Error declining participation request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 exports.declineParticipation = async (req, res) => {
   const { challengeId, userId } = req.params;
 

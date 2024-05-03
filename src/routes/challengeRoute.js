@@ -12,6 +12,12 @@ router.get('/:id', challengeController.viewDetailschallenge);
 router.post('/:challengeId/addSoloParticipationRequest',authMiddleware,challengeController.addSoloParticipationRequest);
 router.get('/:challengeId/participations', challengeController.getAllParticipations);
 router.put('/:challengeId/accept-participation/:userId', authMiddleware,challengeController.acceptParticipation);
+
+router.put('/:challengeTitle/acceptParticipationtitle/:userId' , challengeController.acceptParticipationtitle);
+router.put('/:challengeTitle/declineParticipationtitle/:userId', authMiddleware,challengeController.declineParticipationtitle);
+
+
+
 router.put('/:challengeId/decline/participation/:userId', authMiddleware,challengeController.declineParticipation);
 router.post('/:challengeId/addDiscussion', authMiddleware ,challengeController.addDiscussion);
 router.get('/:challengeId/discussions', challengeController.getDiscussionByChallengeId);
