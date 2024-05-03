@@ -186,6 +186,7 @@ exports.editSubmission = async (req, res) => {
     const io = getSocketInstance();
 
     const submissionId = req.params.id;
+    
 
     const existingSubmission = await Submission.findById(submissionId);
     if (!existingSubmission) {
