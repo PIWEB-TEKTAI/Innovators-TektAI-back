@@ -7,9 +7,9 @@ const contactemail = async (subject  , email , message ) => {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'gestionstockapii@gmail.com',
-            pass: 'dhxo jaxk ewnv xsyr'
-        }
+            user: 'tektaitektai7@gmail.com',
+            pass: 'jiva rlyt bqba ozzb'
+              }
     });
     const handlebarOptions = {
         viewEngine: {
@@ -26,8 +26,8 @@ const contactemail = async (subject  , email , message ) => {
 
     // Define mail options
     let mailOptions = {
-        from:  'gestionstockapii@gmail.com', // Use the fromEmail parameter dynamically
-        to: 'gestionstockapii@gmail.com',
+        from:  'tektaitektai7@gmail.com', // Use the fromEmail parameter dynamically
+        to: 'tektaitektai7@gmail.com',
         subject: subject,
         template: 'contactemail',
         context: {
