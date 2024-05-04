@@ -23,5 +23,6 @@ router.delete('/:discussionId/replies/:replyId/delete', authMiddleware, challeng
 router.post('/:challengeId/addTeamParticipationRequest/:teamId',authMiddleware,challengeController.addTeamParticipationRequest);
 router.get('/team/:teamId', challengeController.getChallengesByTeam);
 router.get('/:challengeId/participations/:type', challengeController.getFilteredParticipationsByType);
+router.post('/sendRewardEmail', challengeController.sendRewardEmail);
 
 module.exports = router

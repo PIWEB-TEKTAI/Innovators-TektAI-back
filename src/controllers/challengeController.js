@@ -8,6 +8,45 @@ const twilio = require('twilio');
 const accountSid = 'AC2d8da5466e64b11d5eade89b932c7ead';
 const authToken = '2e8688c72ad97dd52932ac0f0e9b8e1f';
 const client = twilio(accountSid, authToken);
+const rewardemail = require('../utils/rewardemail');
+
+exports.sendRewardEmail = async (req, res) => {
+  const { winnerEmail , winnerName , challengetitle,amount,prizes,recruitement,freelance,internship,companyname  } = req.body;
+
+  // Log the extracted winner email
+  console.log('Winner Email:', winnerEmail);
+
+  // Send reward email to the winner
+  try {
+    const emailResponse = await rewardemail(
+      winnerEmail,
+      winnerName,
+      challengetitle,
+      amount,
+      prizes,
+      recruitement,
+      freelance,
+      internship,
+      companyname,
+      'Congratulations on Winning!',
+      'rewardemail' // Assuming 'reward' is the name of your Handlebars template
+    );
+    
+    // Check if email was sent successfully
+    if (emailResponse.status === 'success') {
+      console.log('Reward email sent successfully');
+      res.status(200).send('Reward email sent successfully');
+    } else {
+      console.error('Error sending reward email:', emailResponse.error);
+      res.status(500).send('Error sending reward email');
+    }
+  } catch (error) {
+    console.error('Error sending reward email:', error);
+    res.status(500).send('Error sending reward email');
+  }
+};
+
+
 
 
 exports.editChallenge = async (req, res) => {
