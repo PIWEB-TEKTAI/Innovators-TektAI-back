@@ -2,6 +2,7 @@ const Team = require('../models/team');
 const Notification = require('../models/notifications');
 const { getSocketInstance } = require('../../socket');
 const User = require('../models/User');
+const Converstation  = require('../models/converstation');
 
 const teamInvitationMail = require('../utils/teamInvitationMail');
 
@@ -18,6 +19,18 @@ exports.createTeam = async (req, res) => {
 
     const team = new Team({ name, invitations: selectedChallengers, leader, private, emailInvitations: emailInvitation });
     await team.save();
+
+    if (!team) {
+      return res.status(500).json({ error: 'Team creation failed' });
+    }
+    
+    const conversation = new Converstation({
+      participants: [...selectedChallengers,team.leader], 
+      team: team._id
+    });
+    
+    await conversation.save();
+
     const leaderChallenger = await User.findById(leader);
 
     // Array to store all the email invitation promises
@@ -41,6 +54,8 @@ exports.createTeam = async (req, res) => {
           isAdminNotification: false
       });
     }
+
+ 
 
     res.status(201).json({ message: 'Team created successfully', team });
   } catch (error) {
@@ -180,6 +195,8 @@ exports.getTeamById = async (req, res) => {
 };
 exports.joinTeamRequest = async (req, res) => {
   try {
+    const io = getSocketInstance();
+
     const { teamId } = req.params;
     const  userId  = req.userId;
     const team = await Team.findById(teamId);
@@ -189,8 +206,21 @@ exports.joinTeamRequest = async (req, res) => {
     if (team.requests.includes(userId)) {
       return res.status(400).json({ message: 'Request already exists' });
     }
+    const challenger = await User.findById(userId);
+
     team.requests.push(userId);
     await team.save();
+
+    await io.emit("joinTeamRequest", { firstname: challenger.FirstName, lastname: challenger.LastName, idUser: team.leader, content: `has sent you a request to join your team ${team.name}` });
+      await Notification.create({
+          title: "Request to join team",
+          content: `has sent you a request to join your team ${team.name}`,
+          recipientUserId: team.leader,
+          UserConcernedId: challenger._id,
+          TeamInvitation:true,
+          isAdminNotification: false
+      });
+
     res.status(200).json({ message: 'Request sent successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
@@ -211,6 +241,8 @@ exports.getJoinRequests = async (req, res) => {
 
 exports.acceptJoinRequest = async (req, res) => {
     try {
+      const io = getSocketInstance();
+
       const { teamId, userId } = req.params;
       console.log(req.params)
       const team = await Team.findById(teamId);
@@ -220,11 +252,24 @@ exports.acceptJoinRequest = async (req, res) => {
       if (!team.requests.includes(userId)) {
         return res.status(400).json({ message: 'Request does not exist' });
       }
+
+      const challenger = await User.findById(userId);
       // Add user to team members
       team.members.push(userId);
       // Remove user from requests
       team.requests = team.requests.filter(request => request.toString() !== userId);
       await team.save();
+
+      await io.emit("acceptTeamRequest", { name:team.name, idUser: userId, content: `has accept your request to join their team ` });
+      await Notification.create({
+          title: "Request to join team",
+          content: `has accept your request to join their team`,
+          recipientUserId: userId,
+          TeamConcernedId: team._id,
+          TeamInvitation:true,
+          isAdminNotification: false
+      });
+
       res.status(200).json({ message: 'Request accepted successfully' });
     } catch (error) {
       console.error('Error accepting join team request:', error);

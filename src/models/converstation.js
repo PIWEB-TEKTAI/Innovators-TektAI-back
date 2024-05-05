@@ -10,7 +10,12 @@ const converstationSchema = new mongoose.Schema({
   messages: [{ 
     type: mongoose.Schema.Types.ObjectId,
      ref: 'Message' 
-    }]
+    }],
+
+  team : {
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'Team'
+  }   
 });
 
 module.exports = mongoose.model('Converstation', converstationSchema);

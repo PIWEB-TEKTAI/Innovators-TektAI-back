@@ -34,7 +34,7 @@ const getListConversations = async (req, res) => {
 
       const conversations = await Conversation.find({ participants: { $in: [userId] }}).populate(
         'participants'
-      );
+      ).populate('messages').populate('team');
     
       res.status(200).json(conversations);
     } catch (error) {
