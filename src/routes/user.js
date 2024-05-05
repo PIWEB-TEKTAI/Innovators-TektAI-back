@@ -29,6 +29,9 @@ router.put('/switchAccount',authMiddleware, controller.switchAccount);
 router.put('/directlySwitchAccount',authMiddleware, controller.directlySwitchAccount);
 router.get('/getById/:userId',controller.getUserById);
 router.post('/chatbot', controller.chatbot);
+router.get('/users', controller.getAllUsers);
+router.post('/team/updateScore/:id', controller.updateTeamScore);
+router.post('/user/updateScore/:id', controller.updateUserScore);
 
 
 /*router.put('/preferences', authMiddleware, controller.updateCompanyPreferences);
