@@ -8,6 +8,10 @@ const PremiumPackSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  image: {
+    type: String,
+  },
+
   description: {
     type: String,
     required: true
@@ -27,6 +31,9 @@ const FreemiumPackSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
+  },
+  image: {
+    type: String,
   },
   description: {
     type: String,
