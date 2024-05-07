@@ -9,12 +9,14 @@ const ChallengeSchema = new mongoose.Schema({
 
   amount:String,
 
+  currency:String,
+
   visibility:String,
 
   status: {
     type: String,
     enum: ['open', 'completed', 'archived'],
-    default: 'open' // You can set a default value if needed
+    default: 'open' // You can set a default value if eeded
   },
   startDate: {
     type: Date,
