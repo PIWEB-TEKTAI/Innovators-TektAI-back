@@ -431,5 +431,29 @@ router.get('/stats/:role', async (req, res) => {
   }
 });
 
+router.put('/update-subscription-type/:email', authMiddleware, async (req, res) => {
+  try {
+    const { subscriptionType } = req.body;
+    const userEmail = req.params.email; // Récupérer l'email de l'utilisateur depuis les paramètres de l'URL
+
+    // Mettre à jour le type d'abonnement de l'utilisateur dans la base de données
+    const updatedUser = await User.findOneAndUpdate(
+      { email: userEmail },
+      { $set: { subscriptionType: subscriptionType } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.status(200).json({ message: 'Type d\'abonnement mis à jour avec succès', user: updatedUser });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du type d\'abonnement:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+
 
 module.exports = router;
