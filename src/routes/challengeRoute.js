@@ -6,6 +6,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 router.put('/edit/:id',authMiddleware, multer,challengeController.editChallenge);
 router.get('/get/:id',authMiddleware,challengeController.getChallengeById);
+router.get('/getChallengerSkills/:userId',authMiddleware, multer,challengeController.getChallengerSkills);
 router.post('/add',authMiddleware, multer,challengeController.addChallenge);
 router.get('/statistics', challengeController.ChallengesStatics);
 router.get('/:id', challengeController.viewDetailschallenge);

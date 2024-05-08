@@ -94,6 +94,7 @@ exports.addChallenge = async (req, res) => {
   try {     
     let imageUrl;
     let fileUrl;
+   let targetedSkills = req.body.targetedSkills;
     if (req.files && Object.keys(req.files).length > 0) {
       Object.keys(req.files).forEach(key => {
 
@@ -111,6 +112,7 @@ exports.addChallenge = async (req, res) => {
     console.log("file" + fileUrl)
     req.body.fileUrl = fileUrl;
     req.body.image = imageUrl;
+    req.body.targetedSkills=targetedSkills;
     const challengeData = {
       ...req.body,
       createdBy: req.user.id // Assuming req.user.id contains the ID of the logged-in user
@@ -507,6 +509,39 @@ exports.deleteDiscussion = async (req, res) => {
   } catch (error) {
       console.error("Error deleting discussion:", error);
       return res.status(500).json({ message: "Internal server error" });
+  }
+};
+exports.getChallengerSkills = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userSkills = user.skills;
+
+    const allChallenges = await Challenge.find();
+    
+    // Filtrer les challenges de type matching
+    const matchingChallenges = allChallenges.filter(challenge => {
+      const challengeSkills = challenge.targetedSkills || [];
+      return challengeSkills.some(skill => userSkills.includes(skill));
+    });
+
+    // Filtrer les challenges qui ne sont pas de type matching
+    const nonMatchingChallenges = allChallenges.filter(challenge => {
+      const challengeSkills = challenge.targetedSkills || [];
+      return !challengeSkills.some(skill => userSkills.includes(skill));
+    });
+
+    // Concaténer les challenges de type matching en premier
+    const sortedChallenges = matchingChallenges.concat(nonMatchingChallenges);
+
+    res.status(200).json(sortedChallenges);
+  } catch (error) {
+    console.error('Error fetching challenger skills:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 

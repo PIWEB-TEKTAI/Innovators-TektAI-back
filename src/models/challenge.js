@@ -29,6 +29,7 @@ const ChallengeSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+ 
   targetedSkills: [String], 
   
   fileUrl:String,
