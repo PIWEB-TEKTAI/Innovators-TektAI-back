@@ -45,6 +45,10 @@ const teamSchema = new mongoose.Schema({
       type:String
      }
   ],
+  globalScore: {
+    type: Number,
+    default: 0 // Initial global score value
+  }
 
   
 });

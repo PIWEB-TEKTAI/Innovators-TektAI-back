@@ -1,5 +1,7 @@
 const config = require("../configs/auth.config");
 const User = require("../models/User");
+const Team = require("../models/team");
+
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 const express = require('express');
@@ -52,6 +54,55 @@ exports.chatbot = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+exports.getAllUsers = async (req, res) => {
+  try {
+    const challengers = await User.find({ role: 'challenger' });
+    const teams = await Team.find();
+    
+    // Combine challengers and teams into a single array
+    const allUsers = [...challengers, ...teams];
+    
+    // Sort the combined array by globalScore in descending order
+    allUsers.sort((a, b) => b.globalScore - a.globalScore);
+    
+    res.json({ allUsers });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+  exports.updateTeamScore = async (req, res) => {
+    try {
+      const  { id }  = req.params;
+      const  { globalScore } = req.body;
+  
+      // Update team score in the database
+    const team =  await Team.findByIdAndUpdate(id, { $inc: { globalScore: globalScore } });
+
+      res.status(200).json({ message: 'Team score updated successfully' , team });
+    } catch (error) {
+      console.error('Error updating team score:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+
+exports.updateUserScore = async (req, res) => {
+  try {
+    const { id }  = req.params;
+    const  { globalScore }  = req.body;
+
+    // Update user score in the database
+    const user = await User.findByIdAndUpdate(id, { $inc: { globalScore: globalScore } });
+    res.status(200).json({ message: 'User score updated successfully' , user });
+  } catch (error) {
+    console.error('Error updating user score:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 
 
 

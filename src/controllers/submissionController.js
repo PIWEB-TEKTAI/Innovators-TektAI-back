@@ -186,6 +186,7 @@ exports.editSubmission = async (req, res) => {
     const io = getSocketInstance();
 
     const submissionId = req.params.id;
+    
 
     const existingSubmission = await Submission.findById(submissionId);
     if (!existingSubmission) {
@@ -196,6 +197,8 @@ exports.editSubmission = async (req, res) => {
 
     existingSubmission.description = req.body.description;
     existingSubmission.title = req.body.title;
+    existingSubmission.output = req.body.output;
+
 
     if (req.files && Object.keys(req.files).length > 0) {
       Object.keys(req.files).forEach(key => {
@@ -348,7 +351,24 @@ exports.getSubmissionsByChallengeId = async (req, res) => {
   const { challengeId } = req.params;
 
   try {
-    const submissions = await Submission.find({ challengeId }).populate('submittedBy').populate('submittedByTeam');
+    const submissions = await Submission.find({ challengeId }).populate('submittedBy').populate('submittedByTeam').populate({
+      path: 'submittedByTeam',
+      populate: {
+        path: 'leader',
+        model: 'User', // Assuming 'User' is the name of your user model
+      },
+    })
+    .populate('challengeId')
+    .populate({
+      path: 'challengeId',
+      populate: {
+        path: 'createdBy',
+        model: 'User', // Assuming 'User' is the name of your user model
+      },
+    });
+
+  
+
     if (!submissions || submissions.length === 0) {
       return res
         .status(404)

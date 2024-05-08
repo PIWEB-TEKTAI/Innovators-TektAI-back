@@ -88,6 +88,10 @@ const userSchema = new mongoose.Schema({
     permissions: {
       type: Array,
     },
+    globalScore: {
+      type: Number,
+      default: 0 // Initial global score value
+    },
 
     favories: [{
       type: mongoose.Schema.Types.ObjectId,

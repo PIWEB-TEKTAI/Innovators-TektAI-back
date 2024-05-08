@@ -9,7 +9,7 @@ var bcrypt = require("bcryptjs");
 const twilio = require('twilio');
 const accountSid = 'AC2d8da5466e64b11d5eade89b932c7ead';
 const authToken = '2e8688c72ad97dd52932ac0f0e9b8e1f';
-const client =  new twilio(accountSid, authToken);
+const client = new twilio(accountSid, authToken);
 
 
 router.get('/All', async (req, res) => {
@@ -145,18 +145,27 @@ router.put('/:email/updateChallengerToCompany', async (req, res) => {
 router.put('/:email/updateState', async (req, res) => {
   try {
     const email = req.params.email;
-    const newState = req.body.state; 
+    const newState = req.body.state;
 
     const user = await User.findOneAndUpdate({ email: email }, { $set: { state: newState } }, { new: true });
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
 
-    if(newState === 'validated'){
-      const template = 'accountValidated'     
-      await validateAccountEmail(user.email , "Your Account is Validated!", template , user.FirstName , user.LastName);
+    // Send SMS notification
+    const message = await client.messages.create({
+      body: 'Welcome to Tektai! Your account has been validated by the admin. You can now connect.',
+      from: '+12517148512', // Correct format for from number
+      to: user.phone // Correct format for to number (no spaces)
+    });
+
+    console.log('SMS sent:', message.sid);
+
+    if (newState === 'validated') {
+      const template = 'accountValidated'
+      await validateAccountEmail(user.email, "Your Account is Validated!", template, user.FirstName, user.LastName);
     }
-    
+
     res.status(200).json({ message: 'user state changes', user: user });
   } catch (error) {
     console.error(error);

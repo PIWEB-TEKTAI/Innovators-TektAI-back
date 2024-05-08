@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 //const challenge = require('../models/Challenge');
-const User = require('../models/User'); // Import your User model
 const authMiddleware = require('../middlewares/authMiddleware');
+const Challenge = require('../models/challenge'); // Import your Challenge model
+const User = require('../models/User'); // Import your User model
 
 
 router.get('/challenges', authMiddleware, async (req, res) => {
@@ -88,6 +89,12 @@ router.put('/open/:id/update-status', authMiddleware, async (req, res) => {
 });
 
 
+
+
+
+
+
+
 router.put('/completed/:id/update-status', authMiddleware, async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
@@ -107,6 +114,13 @@ router.put('/completed/:id/update-status', authMiddleware, async (req, res) => {
     challenge.status = 'completed';
 
     await challenge.save();
+    const winners = determineWinners(challenge);
+
+    // Calculate rankings
+    const rankings = determineRankings(winners);
+
+    // Update global ranking and points for winners
+    await updateGlobalRankingAndPoints(winners, rankings);
 
     res.status(200).json(challenge);
   } catch (error) {
@@ -114,6 +128,8 @@ router.put('/completed/:id/update-status', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
 
 
 module.exports = router;
