@@ -24,24 +24,85 @@ router.get('/AllChallenge', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
       }
 });
-
-router.get("/AllChallengeLanding", async (req, res) => {
+router.get('/getChallengerSkills/:Id', async (req, res) => {
+  const userId = req.params.Id;
   try {
-  
-    const challenge = await Challenge.find({
-      $and:[
-        {status:'open' , visibility:'Public'}
-      ]
-    }).sort({startDate:-1}).limit(3);
+    let userSkills = [];
+    const allChallenges = await Challenge.find();
 
-    if (!challenge || challenge.length === 0) {
-      return res.status(404).json({ message: "Aucun challenge trouver " });
+    if (userId == '-1') {
+      res.status(200).json(allChallenges);
+
+    }
+    const user = await User.findById(userId);
+    if (user) {
+      userSkills = user.skills;
     }
 
-    res.status(200).json(challenge);
+    // Filtrer les challenges de type matching
+    const matchingChallenges = allChallenges.filter(challenge => {
+      const challengeSkills = challenge.targetedSkills || [];
+      return challengeSkills.some(skill => userSkills.includes(skill));
+    });
+
+    // Filtrer les challenges qui ne sont pas de type matching
+    const nonMatchingChallenges = allChallenges.filter(challenge => {
+      const challengeSkills = challenge.targetedSkills || [];
+      return !challengeSkills.some(skill => userSkills.includes(skill));
+    });
+
+    // Concaténer les challenges de type matching en premier
+    const sortedChallenges = matchingChallenges.concat(nonMatchingChallenges);
+
+    res.status(200).json(sortedChallenges);
+  } catch (error) {
+    console.error('Error fetching challenger skills:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.get("/AllChallengeLanding/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    if (userId === '-1') {
+      const threeChallenges = await Challenge.find({ status: 'open', visibility: 'Public' }).limit(3);
+      return res.status(200).json(threeChallenges);
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    let userSkills = user.skills || [];
+    
+    const challenges = await Challenge.find({ status: 'open', visibility: 'Public' });
+
+    const sortedChallenges = challenges
+      .filter(challenge => {
+        const challengeSkills = challenge.targetedSkills || [];
+        return challengeSkills.some(skill => userSkills.includes(skill));
+      })
+    // Filtrer les challenges qui ne sont pas de type matching
+    const nonMatchingChallenges = challenges.filter(challenge => {
+      const challengeSkills = challenge.targetedSkills || [];
+      return !challengeSkills.some(skill => userSkills.includes(skill));
+    });
+
+    if (sortedChallenges.length === 0) {
+      const threeChallenges = await Challenge.find({ status: 'open', visibility: 'Public' }).limit(3);
+      return res.status(200).json(threeChallenges); 
+       }
+    
+    const landingChallenges = sortedChallenges.concat(nonMatchingChallenges).slice(0,3);
+
+    res.status(200).json(landingChallenges);
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
