@@ -88,61 +88,9 @@ router.put('/open/:id/update-status', authMiddleware, async (req, res) => {
   }
 });
 
-const determineWinners = (challenge) => {
-  const { submissions } = challenge;
-  
-  // Sort submissions by score in descending order
-  const sortedSubmissions = submissions.slice().sort((a, b) => parseInt(b.score) - parseInt(a.score));
-  
-  const winners = [];
-  
-  // Add the first three submissions as winners (if available)
-  for (let i = 0; i < Math.min(3, sortedSubmissions.length); i++) {
-    winners.push(sortedSubmissions[i]);
-  }
-  
-  return winners;
-};
 
-const determineRankings = (winners) => {
-  const rankings = [];
-  
-  // Assign rankings to winners
-  for (let i = 0; i < winners.length; i++) {
-    if (i === 0) {
-      rankings.push({ winner: winners[i], rank: 1 });
-    } else if (i === 1) {
-      rankings.push({ winner: winners[i], rank: 2 });
-    } else if (i === 2) {
-      rankings.push({ winner: winners[i], rank: 3 });
-    }
-  }
-  
-  return rankings;
-};
 
-const updateGlobalRankingAndPoints = async (winners, rankings) => {
-  // Update global ranking and points for each winner
-  for (let i = 0; i < winners.length; i++) {
-    const winner = winners[i];
-    const { rank } = rankings[i];
-    
-    // Update global ranking and points based on rank
-    if (rank === 1) {
-      // Update points for first place (15 points)
-      winner.points += 15;
-    } else if (rank === 2) {
-      // Update points for second place (10 points)
-      winner.points += 10;
-    } else if (rank === 3) {
-      // Update points for third place (5 points)
-      winner.points += 5;
-    }
-    
-    // Save the updated winner with global ranking and points
-    await winner.save();
-  }
-};
+
 
 
 
@@ -180,20 +128,7 @@ router.put('/completed/:id/update-status', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-router.get('/globalranking', async (req, res) => {
-  try {
-    const globalRanking = await User.find({ role: 'challenger' }, 'FirstName LastName')
-      .sort({ globalScore: -1 }) // Sort by points in descending order
-      .limit(10); // Limit the results to top 10 challengers
 
-    // Respond with the global ranking data
-    res.status(200).json(globalRanking);
-  } catch (error) {
-    console.error('Error fetching global ranking:', error);
-    // Respond with a generic error message
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 
 
