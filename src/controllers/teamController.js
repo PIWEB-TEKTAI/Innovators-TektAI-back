@@ -2,8 +2,10 @@ const Team = require('../models/team');
 const Notification = require('../models/notifications');
 const { getSocketInstance } = require('../../socket');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 const teamInvitationMail = require('../utils/teamInvitationMail');
+require('dotenv').config();
 
 exports.createTeam = async (req, res) => {
   try {
@@ -47,6 +49,65 @@ exports.createTeam = async (req, res) => {
     console.error('Error creating team:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+};
+  // Function to invite members by link
+exports.inviteByLink= async (req, res) => {
+    const { teamId } = req.params;
+    try {
+      const team = await Team.findById(teamId);
+      if (!team) {
+        return res.status(404).json({ message: 'Team not found' });
+      }
+      
+      // Generate the invitation link
+      const invitationLink = generateInvitationLink(teamId); // Implement this function
+
+      
+      res.status(200).json({ invitationLink });
+    } catch (error) {
+      console.error('Error inviting members by link:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+exports.handleInvitationLink= async (req, res) => {
+  const userId = req.userId;
+  try {
+    const token = req.params.token;
+
+    const decodedToken = jwt.verify(token,"jwt_secret_key");
+    if (!decodedToken) {
+      return res.status(400).json({ message: 'Invalid token' });
+    }
+
+    const teamId = decodedToken.teamId;
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    if(team.invitations.includes(userId)){
+      return res.json({ redirectTo: '/teams/myInvitations' });
+
+    }
+    team.invitations.push(userId); // Add user to the team members
+    await team.save();
+
+    res.json({ redirectTo: '/teams/myInvitations' });
+  } catch (error) {
+    console.error('Error handling invitation link:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+const generateInvitationLink = (teamId) => {
+  const payload = {
+    teamId: teamId
+  };
+
+  const token = jwt.sign(payload, "jwt_secret_key");
+
+  const invitationLink = `http://localhost:5173/team/linkInvitation/${token}`;
+
+  return invitationLink;
 };
 
 exports.inviteMembers = async (req, res) => {

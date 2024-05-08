@@ -25,4 +25,10 @@ router.get('/find-by-leader/:leaderId', teamController.findTeamByLeader);
 
 // Route to decline invitation
 router.put('/:teamId/decline-invitation', authMiddleware,teamController.declineJoinInvitation);
+router.post('/:teamId/invite/link', authMiddleware,teamController.inviteByLink);
+
+// Route to handle invitation link click
+router.get('/invitationByLink/:token', authMiddleware,teamController.handleInvitationLink);
+
 module.exports = router;
+
