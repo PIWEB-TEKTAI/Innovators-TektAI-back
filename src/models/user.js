@@ -82,6 +82,10 @@ const userSchema = new mongoose.Schema({
       },
       websiteUrl:{
         type:String
+      },
+      subscriptionType: {
+        type: String, 
+        default: "freemium" 
       }
     },
 

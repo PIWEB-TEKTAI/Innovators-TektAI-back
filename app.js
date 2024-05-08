@@ -10,6 +10,7 @@ const axios = require('axios')
 const fs = require('fs');
 const { WebhookClient } = require('dialogflow-fulfillment');
 
+const https = require('https');
 
 //routes 
 var authRouter = require('./src/routes/auth.route');
@@ -26,6 +27,7 @@ const submissionRoute = require('./src/routes/submissionRoute')
 const teamRoutes = require('./src/routes/teamRoute');
 const converstationRoutes = require('./src/routes/converstationRoute');
 const messageRoutes = require('./src/routes/messageRoute');
+const paimentRoutes = require('./src/routes/paiment');
 
 
 const dotenv = require('dotenv');
@@ -37,6 +39,9 @@ dotenv.config();
 const app = express();
 const server = require('http').createServer(app);
 
+const privateKey = fs.readFileSync('key.pem', 'utf8');
+const certificate = fs.readFileSync('cert.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
 
 
 app.use((req, res, next) => {
@@ -101,7 +106,7 @@ app.use("/submissions",authMiddleware,submissionRoute);
 app.use('/teams', teamRoutes);
 app.use('/conv', converstationRoutes);
 app.use('/message', messageRoutes);
-
+app.use('/paiment', paimentRoutes);
 
 
 
