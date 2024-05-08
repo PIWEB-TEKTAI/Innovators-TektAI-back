@@ -84,8 +84,8 @@ const userSchema = new mongoose.Schema({
         type:String
       },
       subscriptionType: {
-        type: String, // Peut être "premium" ou "freemium"
-        default: "freemium" // Par défaut, l'abonnement est Freemium
+        type: String, 
+        default: "freemium" 
       }
     },
 
