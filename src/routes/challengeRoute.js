@@ -28,6 +28,7 @@ router.post('/sendRewardEmail', challengeController.sendRewardEmail);
 
 router.put('/:challengeTitle/acceptParticipationtitle/:userId' , challengeController.acceptParticipationtitle);
 router.put('/:challengeTitle/declineParticipationtitle/:userId',challengeController.declineParticipationtitle);
+router.get('/:challengeId/recommendChallengers', challengeController.RecommendChallengers);
 
 
 module.exports = router

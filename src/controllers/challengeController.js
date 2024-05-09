@@ -10,6 +10,46 @@ const authToken = '2e8688c72ad97dd52932ac0f0e9b8e1f';
 const client = twilio(accountSid, authToken);
 const rewardemail = require('../utils/rewardemail');
 
+exports.RecommendChallengers = async (req, res) => {
+  try {
+    const challengeId = req.params.challengeId;
+    
+    // Retrieve the challenge details including its targeted skills
+    const challenge = await Challenge.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ message: 'Aucun challenge trouvé' });
+    }
+
+    const targetedSkills = challenge.targetedSkills;
+
+    // Find users who have at least 30% of the challenge skills and role == 'challenger'
+    const usersWithMatchingSkills = await User.find({
+      skills: { $in: targetedSkills }, // Users who have at least one matching skill
+      role: 'challenger', // Only users with the role 'challenger'
+    });
+
+    // Filter users by matching percentage in JavaScript
+    const recommendedUsers = usersWithMatchingSkills.filter(user => {
+      const matchingSkills = user.skills.filter(skill => targetedSkills.includes(skill));
+      return (matchingSkills.length / targetedSkills.length) >0;
+    });
+
+    // Sort recommendedUsers by matching percentage
+    recommendedUsers.sort((a, b) => {
+      const matchingSkillsA = a.skills.filter(skill => targetedSkills.includes(skill));
+      const matchingSkillsB = b.skills.filter(skill => targetedSkills.includes(skill));
+      return (matchingSkillsB.length / targetedSkills.length) - (matchingSkillsA.length / targetedSkills.length);
+    });
+
+    // Return the list of recommended users
+    res.status(200).json({ recommendedUsers });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
 exports.sendRewardEmail = async (req, res) => {
   const { winnerEmail , winnerName , challengetitle,amount,prizes,recruitement,freelance,internship,companyname  } = req.body;
 

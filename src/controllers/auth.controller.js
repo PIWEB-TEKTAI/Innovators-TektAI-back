@@ -116,6 +116,7 @@ const lockoutDurationInMinutes = 60;
         id: user._id,
         email: user.email,
         role: user.role,
+        company:user?.company,
         FirstName: user.FirstName,
         imageUrl: user.imageUrl,
         LastName: user.LastName,
@@ -139,7 +140,9 @@ const lockoutDurationInMinutes = 60;
         LastName:user.LastName,
         wasReactivated: !user.isDeactivated && user.wasDeactivated,
         AlreadyCompany:user.AlreadyCompany,
-        redirect: null 
+        redirect: null,
+        company:user?.company,
+ 
   
       });
     }
@@ -170,6 +173,7 @@ exports.signInWithGoogle = async (req, res) => {
         password: "",
         isDemandingToSwitchAccount:false,
         AlreadyCompany:false,
+
       };
 
       const newUser = new User({
@@ -240,7 +244,8 @@ exports.signInWithGoogle = async (req, res) => {
         LastName:user.LastName,
          imageUrl:user.imageUrl,
         token, message: 'Google sign-in successful',
-        AlreadyCompany:user.AlreadyCompany
+        AlreadyCompany:user.AlreadyCompany,
+        company:user?.company
        });
     }
   } catch (err) {
