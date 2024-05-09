@@ -4,6 +4,7 @@ const router = express.Router();
 const multer = require('../middlewares/multerConfig2')
 const authMiddleware = require('../middlewares/authMiddleware');
 
+
 router.put('/edit/:id',authMiddleware, multer,challengeController.editChallenge);
 router.get('/get/:id',authMiddleware,challengeController.getChallengeById);
 router.post('/add',authMiddleware, multer,challengeController.addChallenge);
@@ -26,6 +27,8 @@ router.get('/:challengeId/participations/:type', challengeController.getFiltered
 
 router.put('/:challengeTitle/acceptParticipationtitle/:userId' , challengeController.acceptParticipationtitle);
 router.put('/:challengeTitle/declineParticipationtitle/:userId',challengeController.declineParticipationtitle);
+
+
 
 
 module.exports = router
