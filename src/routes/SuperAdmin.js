@@ -434,15 +434,19 @@ router.get('/stats/:role', async (req, res) => {
 router.put('/update-subscription-type/:email', authMiddleware, async (req, res) => {
   try {
     const { subscriptionType } = req.body;
-    const userEmail = req.params.email; // Récupérer l'email de l'utilisateur depuis les paramètres de l'URL
+    const userEmail = req.params.email; 
 
-    // Mettre à jour le type d'abonnement de l'utilisateur dans la base de données
+    const expirationDate = new Date();
+    expirationDate.setMonth(expirationDate.getMonth() + 1);
+
+    
     const updatedUser = await User.findOneAndUpdate(
       { email: userEmail },
-      { $set: { subscriptionType: subscriptionType } },
+      { 'company.subscriptionType': subscriptionType ,
+        'company.subscriptionExpirationDate': expirationDate 
+      },
       { new: true }
     );
-
     if (!updatedUser) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -453,6 +457,9 @@ router.put('/update-subscription-type/:email', authMiddleware, async (req, res) 
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
+
+
+
 router.get('/check-subscription/:email', async (req, res) => {
   try {
     const email = req.params.email; // Récupérer l'e-mail de l'utilisateur depuis les paramètres de l'URL

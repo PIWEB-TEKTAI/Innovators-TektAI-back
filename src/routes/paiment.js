@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { PremiumPack, FreemiumPack } = require('../models/Pack');
+const { PremiumPack, FreemiumPack, PlatiniumPack } = require('../models/Pack');
 const stripe = require('stripe')('sk_test_51PCMzNHTb56tjMDuNrp9F3jH17WLauGU85sVYMNm3fsRKOG2qqf07MsE1wFffiwhQCCHhmLhsvHSPwIADcqcCGXM001mzvGFVK');
 
 router.get('/pack-price/:packId', async (req, res) => {
@@ -25,14 +25,15 @@ router.get('/packs', async (req, res) => {
       // Récupérer les packs Premium et Freemium depuis la base de données
       const premiumPack = await PremiumPack.findOne();
       const freemiumPack = await FreemiumPack.findOne();
-  
+      const platiniumPack = await PlatiniumPack.findOne();
+
       // Vérifier si les packs existent
-      if (!premiumPack || !freemiumPack) {
+      if (!premiumPack || !freemiumPack || !platiniumPack ) {
         return res.status(404).json({ message: 'Packs not found' });
       }
   
       // Retourner les packs
-      res.json({ premium: premiumPack, freemium: freemiumPack });
+      res.json({ premium: premiumPack, freemium: freemiumPack , platinium:platiniumPack });
     } catch (error) {
       console.error('Error fetching packs:', error);
       res.status(500).json({ error: 'Internal Server Error' });
