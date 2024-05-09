@@ -28,6 +28,7 @@ const teamRoutes = require('./src/routes/teamRoute');
 const converstationRoutes = require('./src/routes/converstationRoute');
 const messageRoutes = require('./src/routes/messageRoute');
 const paimentRoutes = require('./src/routes/paiment');
+const sentimentRoutes = require('./src/routes/sentimentAnalysis');
 
 
 const dotenv = require('dotenv');
@@ -107,6 +108,7 @@ app.use('/teams', teamRoutes);
 app.use('/conv', converstationRoutes);
 app.use('/message', messageRoutes);
 app.use('/paiment', paimentRoutes);
+app.use('/sentiment', sentimentRoutes);
 
 
 
