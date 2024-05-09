@@ -199,7 +199,6 @@ exports.editSubmission = async (req, res) => {
     existingSubmission.title = req.body.title;
     existingSubmission.output = req.body.output;
 
-
     if (req.files && Object.keys(req.files).length > 0) {
       Object.keys(req.files).forEach(key => {
 

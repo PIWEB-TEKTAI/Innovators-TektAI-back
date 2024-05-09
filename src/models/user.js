@@ -82,6 +82,15 @@ const userSchema = new mongoose.Schema({
       },
       websiteUrl:{
         type:String
+      },
+      creationDate:{
+        type:String
+      },
+      subscriptionType: {
+        type: String, 
+      },
+      subscriptionExpirationDate: {
+        type: Date, 
       }
     },
 

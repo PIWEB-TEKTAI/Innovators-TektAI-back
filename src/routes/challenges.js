@@ -281,7 +281,7 @@ router.get("/get", authMiddleware, async (req, res) => {
     const userChallenges = await Challenge.find({ createdBy: userId }).populate(
       "createdBy",
       "username"
-    ); // Populate username from User model
+    ).sort({startDate:-1}) // Populate username from User model
 
     console.log(userChallenges);
     // Envoyer les défis associés à cet utilisateur en réponse

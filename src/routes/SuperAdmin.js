@@ -440,5 +440,56 @@ router.get('/stats/:role', async (req, res) => {
   }
 });
 
+router.put('/update-subscription-type/:email', authMiddleware, async (req, res) => {
+  try {
+    const { subscriptionType } = req.body;
+    const userEmail = req.params.email; 
+
+    const expirationDate = new Date();
+    expirationDate.setMonth(expirationDate.getMonth() + 1);
+
+    
+    const updatedUser = await User.findOneAndUpdate(
+      { email: userEmail },
+      { 'company.subscriptionType': subscriptionType ,
+        'company.subscriptionExpirationDate': expirationDate 
+      },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.status(200).json({ message: 'Type d\'abonnement mis à jour avec succès', user: updatedUser });
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du type d\'abonnement:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+
+
+router.get('/check-subscription/:email', async (req, res) => {
+  try {
+    const email = req.params.email; // Récupérer l'e-mail de l'utilisateur depuis les paramètres de l'URL
+
+    // Rechercher l'utilisateur dans la base de données en fonction de l'e-mail
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      // Si l'utilisateur n'existe pas, renvoyer un statut 404 avec un message d'erreur
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Vérifier si le champ subscriptionType est vide
+    const isSubscriptionEmpty = user.subscriptionType === '';
+
+    // Renvoyer l'état de l'abonnement en réponse
+    res.status(200).json({ isSubscriptionEmpty });
+  } catch (error) {
+    console.error('Erreur lors de la vérification du statut de l\'abonnement :', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
 
 module.exports = router;

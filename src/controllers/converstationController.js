@@ -1,5 +1,5 @@
 const Converstation = require('../models/converstation');
-const Conversation = require('../models/converstation');
+const Message = require('../models/message');
 
 
 
@@ -32,9 +32,9 @@ const getListConversations = async (req, res) => {
     try {
       const userId= req.params.id  
 
-      const conversations = await Conversation.find({ participants: { $in: [userId] }}).populate(
+      const conversations = await Converstation.find({ participants: { $in: [userId] }}).populate(
         'participants'
-      );
+      ).populate('messages').populate('team');
     
       res.status(200).json(conversations);
     } catch (error) {
@@ -44,7 +44,31 @@ const getListConversations = async (req, res) => {
   };
 
 
+
+const DeleteConverstation = async (req, res) => {
+    const id = req.params.id;
+  
+    try {
+     
+      const deletedConversation = await Converstation.findByIdAndDelete(id);
+
+      if (!deletedConversation) {
+         return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      await Message.deleteMany({ _id: { $in: deletedConversation.messages } });
+ 
+      res.status(201).json({ msg: "Converstation deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting Converstation :", error);
+      res
+        .status(500)
+        .json({ msg: "An error occurred while deleting Converstation" });
+    }
+  };
+
 module.exports = {
   createConversation,
-  getListConversations
+  getListConversations,
+  DeleteConverstation
 };

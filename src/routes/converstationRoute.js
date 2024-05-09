@@ -6,6 +6,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 router.post('/create/:idUser1/:idUser2', conver.createConversation);
 router.get('/list/:id', conver.getListConversations);
+router.delete('/delete/:id', conver.DeleteConverstation);
 
 
 

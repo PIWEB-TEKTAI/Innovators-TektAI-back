@@ -3,6 +3,7 @@ const Notification = require('../models/notifications');
 const { getSocketInstance } = require('../../socket');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const Converstation  = require('../models/converstation');
 
 const teamInvitationMail = require('../utils/teamInvitationMail');
 require('dotenv').config();
@@ -20,6 +21,18 @@ exports.createTeam = async (req, res) => {
 
     const team = new Team({ name, invitations: selectedChallengers, leader, private, emailInvitations: emailInvitation });
     await team.save();
+
+    if (!team) {
+      return res.status(500).json({ error: 'Team creation failed' });
+    }
+    
+    const conversation = new Converstation({
+      participants: [...selectedChallengers,team.leader], 
+      team: team._id
+    });
+    
+    await conversation.save();
+
     const leaderChallenger = await User.findById(leader);
 
     // Array to store all the email invitation promises
@@ -43,6 +56,8 @@ exports.createTeam = async (req, res) => {
           isAdminNotification: false
       });
     }
+
+ 
 
     res.status(201).json({ message: 'Team created successfully', team });
   } catch (error) {
@@ -113,10 +128,9 @@ const generateInvitationLink = (teamId) => {
 exports.inviteMembers = async (req, res) => {
   try {
     const { teamId, userIds, emailInvitations } = req.body;
-
     const team = await Team.findByIdAndUpdate(
       teamId,
-      { $addToSet: { members: { $each: userIds }, invitations: { $each: userIds }, emailInvitations } },
+      { $addToSet: { invitations: { $each: userIds }, emailInvitations } },
       { new: true }
     ).populate('leader');
 
