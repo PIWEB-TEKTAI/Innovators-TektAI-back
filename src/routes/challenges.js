@@ -624,7 +624,7 @@ router.get("/favorites/:idUser", authMiddleware , async (req, res) => {
       const challenge = await Challenge.findById(favoriteId);
       return challenge; // Retourne le challenge trouvé pour cet ID
     }));
-    console.log(challenges)
+
 
     res.status(200).json(challenges); // Retourne la liste des challenges associés aux favoris de l'utilisateur
   } catch (error) {
