@@ -13,6 +13,8 @@ process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(__dirname, 'tektai-crn9-1
 const { SessionsClient } = require('dialogflow');
 const sessionClient = new SessionsClient();
 
+
+
 const { v4: uuidv4 } = require('uuid');
 
 // Function to generate a temporary session ID
@@ -20,40 +22,50 @@ const generateTempSessionId = () => {
   return uuidv4(); // Generates a random UUID
 };
 
+const updateUserSentimentScore = async (userId, sentimentScore) => {
+  try {
+      // Replace this with actual database update logic
+      console.log(`Updating sentiment score for user ${userId} to ${sentimentScore}`);
+      // Example:
+      await User.findByIdAndUpdate(userId, { $inc: { sentimentScore: sentimentScore } }); // Increment the score
+  } catch (error) {
+      console.error('Error updating sentiment score:', error);
+      throw new Error('Failed to update sentiment score');
+  }
+};
+
 // Create a new session client
 exports.chatbot = async (req, res) => {
-  const { message } = req.body;
+  const { message, userId } = req.body; // Get the userId from the request body
 
-  // Check if there's a session ID in the request, otherwise generate a temporary one
-  const userId = req.user ? req.user.id : req.cookies.tempSessionId || generateTempSessionId();
-
-  // If user is not authenticated, set a temporary session ID in the cookie
-  if (!req.user && !req.cookies.tempSessionId) {
-    res.cookie('tempSessionId', userId, { maxAge: 86400000, httpOnly: true }); // Set cookie for 24 hours
-  }
-
-  // Construct sessionPath using the session ID
   const sessionPath = sessionClient.sessionPath(projectId, userId);
 
   const request = {
-    session: sessionPath,
-    queryInput: {
-      text: {
-        text: message,
-        languageCode: 'en-US',
+      session: sessionPath,
+      queryInput: {
+          text: {
+              text: message,
+              languageCode: 'en-US',
+          },
       },
-    },
   };
 
   try {
-    const responses = await sessionClient.detectIntent(request);
-    const result = responses[0].queryResult;
-    res.json({ response: result.fulfillmentText });
+      const responses = await sessionClient.detectIntent(request);
+      const result = responses[0].queryResult;
+
+      const sentimentScore = result.sentimentAnalysisResult.queryTextSentiment.score;
+
+      await updateUserSentimentScore(userId, sentimentScore); // Update the sentiment score for the user
+
+      res.json({ response: result.fulfillmentText, sentimentScore });
   } catch (error) {
-    console.error('Error communicating with Dialogflow:', error);
-    res.status(500).json({ error: 'Internal server error' });
+      console.error('Error communicating with Dialogflow:', error);
+      res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
 exports.getAllUsers = async (req, res) => {
   try {
     const challengers = await User.find({ role: 'challenger' });

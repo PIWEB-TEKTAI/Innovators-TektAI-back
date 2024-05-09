@@ -101,6 +101,11 @@ const userSchema = new mongoose.Schema({
       type: Number,
       default: 0 // Initial global score value
     },
+    sentimentScore: {
+      type: Number,
+      default: 0 // Default sentiment score
+    },
+  
 
     favories: [{
       type: mongoose.Schema.Types.ObjectId,
